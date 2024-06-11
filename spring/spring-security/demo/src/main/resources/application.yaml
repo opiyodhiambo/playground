@@ -1,0 +1,20 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: DEMO
+  codec:
+    max-in-memory-size: 3MB
+    log-request-details: true
+  datasource:
+    url: jdbc:postgresql://localhost:55000/test
+    username: test
+    password: test
+  jpa:
+    hibernate:
+      ddl-auto: update
+  logging:
+    level:
+      org.springframework.security: DEBUG
+      org.springframework.web: DEBUG
