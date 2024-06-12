@@ -40,7 +40,6 @@ open class WebAuthorizationConfig(
                 it.csrfTokenRepository(customCsrfTokenRepository)
                 it.csrfTokenRequestHandler(CsrfTokenRequestAttributeHandler())
             }
-            .httpBasic(Customizer.withDefaults())
             .cors {
                 val source = CorsConfigurationSource{
                     val configuration = CorsConfiguration()
