@@ -54,7 +54,7 @@ open class WebAuthorizationConfig(
                 it
                     .requestMatchers("/auth/**").permitAll()
                     .requestMatchers("/transcripts").hasRole("ADMIN")
-                    .anyRequest().permitAll()
+                    .anyRequest().authenticated()
             }
 
         return httpSecurity.build()

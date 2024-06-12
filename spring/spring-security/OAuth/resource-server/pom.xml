@@ -9,9 +9,9 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.example</groupId>
-	<artifactId>OAuth</artifactId>
+	<artifactId>resource-server</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>OAuth</name>
+	<name>auth-server</name>
 	<description>Demo project for Spring Boot</description>
 	<properties>
 		<java.version>21</java.version>
@@ -20,7 +20,11 @@
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-oauth2-authorization-server</artifactId>
+			<artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -47,6 +51,11 @@
 		<dependency>
 			<groupId>org.jetbrains.kotlin</groupId>
 			<artifactId>kotlin-test-junit5</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-test</artifactId>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
