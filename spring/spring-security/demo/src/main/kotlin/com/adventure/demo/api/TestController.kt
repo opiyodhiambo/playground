@@ -2,6 +2,7 @@ package com.adventure.demo.api
 
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
+import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.CrossOrigin
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
@@ -14,15 +15,15 @@ class TestController(
     private val testService: TestService
 ) {
     @GetMapping("/hello")
-    @CrossOrigin("http://localhost:8081") // Allows the port 8081 of localhost origin for cross-origin requests
-    fun getHello(): ResponseEntity<String> {
-        return ResponseEntity.ok("Get Hello!")
+//    @CrossOrigin("http://localhost:8081") // Allows the port 8081 of localhost origin for cross-origin requests
+    fun getHello(): String {
+        return "Get Hello!"
     }
-
-    @PostMapping("/hello")
-    fun postHello(): String {
-        return "Post Hello!"
-    }
+//
+//    @PostMapping("/hello")
+//    fun postHello(): String {
+//        return "Post Hello!"
+//    }
 
     @GetMapping("/lastName")
     @PreAuthorize("hasAuthority('WRITE')")

@@ -1,3 +1,8 @@
 server:
   port: 8083
-keySetURI: http://localhost:8080/oauth2/jwks
+keySetURI: http://localhost:8081/oauth2/jwks
+introspectionURI: http://localhost:8081/oauth2/jwks
+resourceServer:
+  clientId: resource_server
+  clientSecret: resource-server-secret
+

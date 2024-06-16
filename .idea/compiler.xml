@@ -9,12 +9,14 @@
         <module name="resource-server" />
         <module name="demo" />
         <module name="auth-server" />
+        <module name="auth-server-dummy" />
       </profile>
     </annotationProcessing>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="auth-server" options="-parameters" />
+      <module name="auth-server-dummy" options="-parameters" />
       <module name="demo" options="-parameters" />
       <module name="resource-server" options="-parameters" />
     </option>
