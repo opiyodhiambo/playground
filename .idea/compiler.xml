@@ -7,6 +7,7 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="resource-server" />
+        <module name="auth-client" />
         <module name="demo" />
         <module name="auth-server" />
         <module name="auth-server-dummy" />
@@ -15,6 +16,7 @@
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="auth-client" options="-parameters" />
       <module name="auth-server" options="-parameters" />
       <module name="auth-server-dummy" options="-parameters" />
       <module name="demo" options="-parameters" />

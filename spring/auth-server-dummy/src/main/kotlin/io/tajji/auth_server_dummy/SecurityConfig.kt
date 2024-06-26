@@ -5,6 +5,8 @@ import com.nimbusds.jose.jwk.RSAKey
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet
 import com.nimbusds.jose.jwk.source.JWKSource
 import com.nimbusds.jose.proc.SecurityContext
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.annotation.Order
@@ -23,6 +25,7 @@ import org.springframework.security.oauth2.server.authorization.client.Registere
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configuration.OAuth2AuthorizationServerConfiguration
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configurers.OAuth2AuthorizationServerConfigurer
 import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings
+import org.springframework.security.oauth2.server.authorization.settings.ClientSettings
 import org.springframework.security.provisioning.InMemoryUserDetailsManager
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint
@@ -34,9 +37,12 @@ import java.util.UUID
 @Configuration
 class SecurityConfig {
 
+    val logger: Logger = LoggerFactory.getLogger(this::class.java)
+
     @Bean
     @Order(1)
     fun asFilterChain(httpSecurity: HttpSecurity): SecurityFilterChain {
+        logger.info("Applying default security filter chain")
         OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(httpSecurity)
         httpSecurity
             .getConfigurer(OAuth2AuthorizationServerConfigurer::class.java)
@@ -51,9 +57,9 @@ class SecurityConfig {
     @Bean
     @Order(2)
     fun defaultSecurityFilterChain(httpSecurity: HttpSecurity): SecurityFilterChain {
+        logger.info("Applying default security filter chain for form login")
         return httpSecurity
             .formLogin(Customizer.withDefaults())
-            .csrf { it.disable() }
             .authorizeHttpRequests {
                 it.requestMatchers("/auth").permitAll()
                     .anyRequest().authenticated()
@@ -83,10 +89,15 @@ class SecurityConfig {
             .withId(UUID.randomUUID().toString())
             .clientId("tajji-boma")
             .clientSecret("tuzid")
+            .clientSettings(
+                ClientSettings.builder()
+                    .requireProofKey(false)
+                    .build()
+            )
             .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
             .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
             .scope(OidcScopes.OPENID)
-            .redirectUri("https://tajji.io/")
+            .redirectUri("http://localhost:8080/login/oauth2/code/my_authorization_server")
             .build()
 
         return InMemoryRegisteredClientRepository(registeredClient)

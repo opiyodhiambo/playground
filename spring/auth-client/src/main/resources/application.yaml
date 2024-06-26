@@ -1,0 +1,18 @@
+server:
+  port: 7070
+spring:
+  application:
+    name: auth-client
+  security:
+    oauth2:
+      client:
+        registration:
+          my_authorization_server:
+            client-id: tajji-boma
+            client-name: Custom
+            client-secret: tuzid
+            provider: my_authorization_server
+            client-authentication-method: client_secret_basic
+            redirect-uri: http://localhost:8080/login/oauth2/code/my_authorization_server
+            scope:
+              - openid
