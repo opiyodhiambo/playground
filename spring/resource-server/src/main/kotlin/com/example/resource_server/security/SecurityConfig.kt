@@ -9,7 +9,6 @@ import org.springframework.security.web.SecurityFilterChain
 
 
 @Configuration
-//@EnableMethodSecurity
 class SecurityConfig(private val jwtAuthenticationConverter: JwtAuthenticationConverter) {
 
     @Value("\${keySetURI}")
@@ -21,6 +20,11 @@ class SecurityConfig(private val jwtAuthenticationConverter: JwtAuthenticationCo
             .authorizeHttpRequests {
                 it.requestMatchers("/auth").permitAll()
                     .anyRequest().authenticated()
+            }
+            .logout {
+                it.logoutSuccessHandler { _, response, _ ->
+                    response.sendRedirect("/login")
+                }
             }
             .oauth2ResourceServer {
                 it.jwt { jwt ->

@@ -38,7 +38,7 @@ import java.security.interfaces.RSAPrivateKey
 import java.security.interfaces.RSAPublicKey
 import java.util.UUID
 
-@Configuration("uniqueSecurityConfig")
+@Configuration
 @EnableMethodSecurity
 class SecurityConfig {
 
