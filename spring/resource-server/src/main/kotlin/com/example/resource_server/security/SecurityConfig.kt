@@ -21,11 +21,6 @@ class SecurityConfig(private val jwtAuthenticationConverter: JwtAuthenticationCo
                 it.requestMatchers("/auth").permitAll()
                     .anyRequest().authenticated()
             }
-            .logout {
-                it.logoutSuccessHandler { _, response, _ ->
-                    response.sendRedirect("/login")
-                }
-            }
             .oauth2ResourceServer {
                 it.jwt { jwt ->
                     jwt.jwkSetUri(keySetUri)

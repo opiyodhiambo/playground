@@ -65,6 +65,11 @@ class SecurityConfig {
         logger.info("Applying default security filter chain for form login")
         return httpSecurity
             .formLogin(Customizer.withDefaults())
+            .logout {
+                it.logoutSuccessHandler { _, response, _ ->
+                    response.sendRedirect("https://tajji.io/")
+                }
+            }
             .authorizeHttpRequests {
                 it.requestMatchers("/auth").permitAll()
                     .anyRequest().authenticated()
