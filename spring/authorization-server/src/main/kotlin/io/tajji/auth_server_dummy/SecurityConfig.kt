@@ -39,7 +39,6 @@ import java.security.interfaces.RSAPublicKey
 import java.util.UUID
 
 @Configuration
-@EnableMethodSecurity
 class SecurityConfig {
 
     val logger: Logger = LoggerFactory.getLogger(this::class.java)
@@ -59,19 +58,20 @@ class SecurityConfig {
         return httpSecurity.build()
     }
 
+
     @Bean
     @Order(2)
     fun defaultSecurityFilterChain(httpSecurity: HttpSecurity): SecurityFilterChain {
         logger.info("Applying default security filter chain for form login")
         return httpSecurity
-            .formLogin(Customizer.withDefaults())
-            .logout {
-                it.logoutSuccessHandler { _, response, _ ->
-                    response.sendRedirect("https://tajji.io/")
-                }
+            .formLogin {
+                it.loginPage("/login")
+                    .defaultSuccessUrl("https://tajji.io/", true)
             }
             .authorizeHttpRequests {
-                it.requestMatchers("/auth").permitAll()
+                it
+                    .requestMatchers("/auth").permitAll()
+                    .requestMatchers("/error").permitAll()
                     .anyRequest().authenticated()
             }
             .build()
@@ -89,37 +89,22 @@ class SecurityConfig {
             .password(passwordEncoder.encode("RiekoIoane@13"))
             .roles("LANDLORD")
             .build()
-
-        val tenant = User.withUsername("Arnold")
-            .password(passwordEncoder.encode("Opiyo123"))
-            .roles("TENANT")
-            .build()
-
-        return InMemoryUserDetailsManager(landlord, tenant)
+         return InMemoryUserDetailsManager(landlord)
     }
 
     @Bean
     fun registeredClientRepository(): RegisteredClientRepository {
         val registeredClient = RegisteredClient
             .withId(UUID.randomUUID().toString())
-            .clientId("tajjiboma-client")
+            .clientId("tajjiboma")
             .clientSecret(passwordEncoder().encode("tuzid"))
             .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
             .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-            .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
             .scope(OidcScopes.OPENID)
             .redirectUri("https://tajji.io/")
             .build()
 
-        val resourceServer = RegisteredClient
-            .withId(UUID.randomUUID().toString())
-            .clientId("tajjiboma-server")
-            .clientSecret(passwordEncoder().encode("tuzid"))
-            .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
-            .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
-            .build()
-
-        return InMemoryRegisteredClientRepository(registeredClient, resourceServer)
+        return InMemoryRegisteredClientRepository(registeredClient)
     }
 
 
@@ -161,16 +146,8 @@ class SecurityConfig {
             claims.claim("Porfolio", propertyClaims)
         }
     }
-
-    @Bean
-    fun initializingBean(): InitializingBean {
-        return InitializingBean {
-            SecurityContextHolder
-                .setStrategyName(SecurityContextHolder.MODE_INHERITABLETHREADLOCAL)
-        }
-    }
-
 }
+
 data class PropertyClaims(
     val propertyId: UUID,
     val propertyName: String
