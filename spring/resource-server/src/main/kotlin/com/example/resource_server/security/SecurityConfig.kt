@@ -28,8 +28,5 @@ class SecurityConfig(private val jwtAuthenticationConverter: JwtAuthenticationCo
                 }
             }
             .build()
-
     }
-
-
 }

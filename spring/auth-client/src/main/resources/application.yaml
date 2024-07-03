@@ -6,13 +6,16 @@ spring:
   security:
     oauth2:
       client:
+        provider:
+          auth-server:
+            issuer-uri: http://127.0.0.1:8080
         registration:
-          my_authorization_server:
-            client-id: tajji-boma
-            client-name: Custom
+          auth_server:
+            client-id: tajjiboma
             client-secret: tuzid
-            provider: my_authorization_server
+            client-name: Custom
+            provider: auth-server
             client-authentication-method: client_secret_basic
-            redirect-uri: http://localhost:8080/login/oauth2/code/my_authorization_server
+            redirect-uri: https://google.com/
             scope:
               - openid
