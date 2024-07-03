@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.adventure.catalog_service.CatalogServiceApplicationTests" tests="1" skipped="0" failures="0" errors="0" timestamp="2024-07-03T13:18:23" hostname="opiyo" time="1.33">
+  <properties/>
+  <testcase name="contextLoads()" classname="com.adventure.catalog_service.CatalogServiceApplicationTests" time="1.33"/>
+  <system-out><![CDATA[16:18:18.361 [Test worker] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.adventure.catalog_service.CatalogServiceApplicationTests]: CatalogServiceApplicationTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+16:18:18.721 [Test worker] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.adventure.catalog_service.CatalogServiceApplication for test class com.adventure.catalog_service.CatalogServiceApplicationTests
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.3.1)
+
+2024-07-03T16:18:19.882+03:00  INFO 243048 --- [catalog-service] [    Test worker] c.a.c.CatalogServiceApplicationTests     : Starting CatalogServiceApplicationTests using Java 21.0.2 with PID 243048 (started by adventure in /home/adventure/adventure/dev/playground/cloud-native-applications/catalog-service)
+2024-07-03T16:18:19.886+03:00  INFO 243048 --- [catalog-service] [    Test worker] c.a.c.CatalogServiceApplicationTests     : No active profile set, falling back to 1 default profile: "default"
+2024-07-03T16:18:23.140+03:00  INFO 243048 --- [catalog-service] [    Test worker] c.a.c.CatalogServiceApplicationTests     : Started CatalogServiceApplicationTests in 4.042 seconds (process running for 7.347)
+]]></system-out>
+  <system-err><![CDATA[WARNING: A Java agent has been loaded dynamically (/home/adventure/.gradle/caches/modules-2/files-2.1/net.bytebuddy/byte-buddy-agent/1.14.17/e3c251a39dc90badaf71c83427ba46840f219d8d/byte-buddy-agent-1.14.17.jar)
+WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
+WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
+WARNING: Dynamic loading of agents will be disallowed by default in a future release
+]]></system-err>
+</testsuite>
