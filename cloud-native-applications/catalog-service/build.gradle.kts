@@ -8,6 +8,7 @@ plugins {
 
 group = "com.adventure"
 version = "0.0.1-SNAPSHOT"
+extra["springCloudVersion"] = "2023.0.2"
 
 java {
 	toolchain {
@@ -28,6 +29,7 @@ configurations {
 
 dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-web")
+	implementation("org.springframework.cloud:spring-cloud-starter-config")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	compileOnly("org.springframework.boot:spring-boot-configuration-processor") // Compile-only dependency
@@ -35,6 +37,11 @@ dependencies {
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+}
+dependencyManagement {
+	imports {
+		mavenBom("org.springframework.cloud:spring-cloud-dependencies:${property("springCloudVersion")}")
+	}
 }
 
 kotlin {

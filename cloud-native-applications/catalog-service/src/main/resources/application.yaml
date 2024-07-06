@@ -9,5 +9,12 @@ server:
 spring:
   application:
     name: catalog-service
-polar:
-  greeting: Welcome to the local book catalog!
+  config:
+    import: "optional:configserver:"
+  cloud:
+    config:
+      uri: http://localhost:8888
+      request-connect-timeout: 5000
+      request-read-timeout: 5000
+#polar:
+#  greeting: Welcome to the local book catalog!
