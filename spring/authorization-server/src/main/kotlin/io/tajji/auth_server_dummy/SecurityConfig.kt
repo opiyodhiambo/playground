@@ -7,6 +7,7 @@ import org.springframework.core.annotation.Order
 import org.springframework.security.config.Customizer
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.oauth2.core.AuthorizationGrantType.AUTHORIZATION_CODE
+import org.springframework.security.oauth2.core.AuthorizationGrantType.REFRESH_TOKEN
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod.CLIENT_SECRET_BASIC
 import org.springframework.security.oauth2.core.oidc.OidcScopes.OPENID
 import org.springframework.security.oauth2.server.authorization.client.InMemoryRegisteredClientRepository
@@ -79,6 +80,7 @@ class ClientManagementConf {
             .clientSecret("secret")
             .clientAuthenticationMethod(CLIENT_SECRET_BASIC)
             .authorizationGrantType(AUTHORIZATION_CODE)
+            .authorizationGrantType(REFRESH_TOKEN)
             .redirectUri("https://tajji.io")
             .scope(OPENID)
             .build()
