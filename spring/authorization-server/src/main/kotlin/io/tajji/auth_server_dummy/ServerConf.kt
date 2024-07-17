@@ -9,6 +9,7 @@ class ServerConfig {
 
     @Bean
     fun authorizationServerSettings(): AuthorizationServerSettings =
-        AuthorizationServerSettings.builder().build()
+        AuthorizationServerSettings.builder()
+            .build()
 
 }

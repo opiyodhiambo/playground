@@ -16,5 +16,13 @@ spring:
       uri: http://localhost:8888
       request-connect-timeout: 5000
       request-read-timeout: 5000
+  datasource:
+    url: jdbc:postgresql://localhost:55000/test
+    username: test
+    password: test
+    hikari:
+      connection-timeout: 2000
+      maximum0pool-size: 5
+
 #polar:
 #  greeting: Welcome to the local book catalog!

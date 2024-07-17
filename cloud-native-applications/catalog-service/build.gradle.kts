@@ -32,6 +32,9 @@ dependencies {
 	implementation("org.springframework.cloud:spring-cloud-starter-config")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
+	implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
+	implementation("org.flywaydb:flyway-core")
+	runtimeOnly("org.postgresql:postgresql")
 	compileOnly("org.springframework.boot:spring-boot-configuration-processor") // Compile-only dependency
 	annotationProcessor("org.springframework.boot:spring-boot-configuration-processor") // Annotation processor dependency
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
