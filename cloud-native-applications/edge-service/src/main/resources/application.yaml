@@ -9,9 +9,20 @@ spring:
     name: edge-service
   lifecycle:
     timeout-per-shutdown-phase: 15s
+  session:
+    store-type: redis
+    timeout: 10m
+    redis:
+      namespace: polar:edge
+  redis:
+    connect-timeout: 2s
+    host: localhost
+    port: 6379
+    timeout: 1s
   cloud:
     gateway:
       default-filters:
+        - SaveSession
         - name: Retry
           args:
             retries: 3
@@ -22,6 +33,12 @@ spring:
               maxBackoff: 500ms
               factor: 2
               basedOnPreviousValue: false # Retries with a delay computed as firstBackoff * (factor ^ n)
+        - name: RequestRateLimiter
+          args:
+            redis-rate-limiter:
+              replenishRate: 10 # No of tokens dripped into the bucket each second
+              burstCapacity: 20 # Allow request bursts of up-to 20 requests
+              requestedTokens: 1 # How many tokens a request costs
       httpclient:
         connect-timeout: 2000
         response-timeout: 5s
@@ -37,10 +54,34 @@ spring:
           filters:
             - name: CircuitBreaker
               args:
+                name: catalogCircuitBreaker
+                fallbackUri: forward:/catalog-fallback
 
         - id: order-service
           uri: ${ORDER_SERVICE_URL:http://localhost:9002}/orders
           predicates:
             - Path=/orders/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: orderServiceCircuitBreaker
+
+
+resilience4j:
+  circuitBreaker:
+    configs:
+      default:
+        slidingWindowSize: 20
+        permittedNumberOfCallsInHalfOpenState: 5
+        failureRateThreshold: 50
+        waitDurationOpenState: 15000
+  timelimiter:
+    configs:
+      default:
+        timeoutDuration: 5s
+
+logging:
+  level:
+    io.github.resilience4j: DEBUG
 
 

@@ -1,33 +1,31 @@
 package io.tajji.auth_server_dummy
 
 import org.hamcrest.Matchers.containsString
-import org.hamcrest.Matchers.`is`
 import org.junit.jupiter.api.Test
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.mock.web.MockHttpServletRequest
+import org.springframework.mock.web.MockHttpServletResponse
 import org.springframework.mock.web.MockHttpSession
+import org.springframework.security.authentication.TestingAuthenticationToken
+import org.springframework.security.core.authority.SimpleGrantedAuthority
+import org.springframework.security.core.userdetails.User
 import org.springframework.security.oauth2.client.registration.ClientRegistration
 import org.springframework.security.oauth2.core.AuthorizationGrantType
-import org.springframework.security.oauth2.core.ClientAuthenticationMethod
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest
-import org.springframework.security.oauth2.core.oidc.OidcScopes
-import org.springframework.security.oauth2.core.user.OAuth2User
 import org.springframework.security.oauth2.server.authorization.client.InMemoryRegisteredClientRepository
-import org.springframework.security.oauth2.server.authorization.client.RegisteredClient
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository
 import org.springframework.security.test.context.support.WithMockUser
-import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
-import org.springframework.web.util.UriComponentsBuilder
 import java.util.UUID
-import kotlin.test.assertNotNull
+import kotlin.test.assertEquals
 
 //@SpringBootTest
 //@AutoConfigureMockMvc
@@ -37,6 +35,7 @@ import kotlin.test.assertNotNull
 //    private lateinit var mvc: MockMvc
 //
 //    @Autowired private lateinit var repo: InMemoryRegisteredClientRepository
+//    private val successHandler = CustomAuthenticationSuccessHandler()
 //
 //    @Autowired
 //    private lateinit var clientRepository: RegisteredClientRepository
@@ -61,7 +60,7 @@ import kotlin.test.assertNotNull
 //
 //    @Test
 //    fun authenticatedUser() {
-//        val cli = clientRepository.findByClientId("tajjiboma")!!
+//        val cli = clientRepository.findByClientId("client")!!
 //
 //        val client: ClientRegistration = ClientRegistration.withRegistrationId(cli.id)
 //            .clientId(cli.clientId)
@@ -82,7 +81,7 @@ import kotlin.test.assertNotNull
 //    @Test
 //    fun clientCredentialsGrantType() {
 //        val httpSession = MockHttpSession()
-//        val clientRegistration = clientRepository.findByClientId("tajjiboma")
+//        val clientRegistration = clientRepository.findByClientId("client")
 //
 //        requireNotNull(clientRegistration) { "Client registration not found" }
 //        val authorizationRequest = OAuth2AuthorizationRequest.authorizationCode()
@@ -117,6 +116,29 @@ import kotlin.test.assertNotNull
 //            .andExpect(redirectedUrl("/login"))
 //    }
 //
+//    @Test
+//    fun `test redirect for LANDLORD role`() {
+//        val authorities = listOf(SimpleGrantedAuthority("LANDLORD"))
+//        val request = MockHttpServletRequest()
+//        val response = MockHttpServletResponse()
+//        val user = User("Arnold", "Opiyo", authorities)
+//        val authentication = TestingAuthenticationToken(user, authorities)
+//        successHandler.onAuthenticationSuccess(request, response, authentication)
+//
+//        assertEquals("http://tajji.io/landlords", response.redirectedUrl)
+//    }
+//
+//    @Test
+//    fun `test redirect for RESIDENT role`() {
+//        val authorities = listOf(SimpleGrantedAuthority("RESIDENT"))
+//        val request = MockHttpServletRequest()
+//        val response = MockHttpServletResponse()
+//        val user = User("Arnold", "Opiyo", authorities)
+//        val authentication = TestingAuthenticationToken(user, authorities)
+//        successHandler.onAuthenticationSuccess(request, response, authentication)
+//
+//        assertEquals("http://tajji.io/residents", response.redirectedUrl)
+//    }
 //    @Test
 //    fun contextLoads() {
 //    }

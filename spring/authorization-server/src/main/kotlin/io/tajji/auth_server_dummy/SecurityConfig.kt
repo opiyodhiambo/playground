@@ -16,7 +16,7 @@ import org.springframework.security.web.authentication.LoginUrlAuthenticationEnt
 import java.util.UUID
 
 @Configuration
-class AppConfig() {
+class AppConfig(private val roleBasedSuccessHandler: CustomAuthenticationSuccessHandler) {
 
     @Bean
     @Order(1)
@@ -26,13 +26,14 @@ class AppConfig() {
 
         http.getConfigurer(OAuth2AuthorizationServerConfigurer::class.java)
             .oidc(Customizer.withDefaults())
+            .clientAuthentication { it.authenticationSuccessHandler(roleBasedSuccessHandler) }
 
         http.exceptionHandling {
             it.authenticationEntryPoint(
-                LoginUrlAuthenticationEntryPoint("/login")
+                LoginUrlAuthenticationEntryPoint("https://4516-41-90-124-47.ngrok-free.app/login")
             )
-        }
 
+        }
         return http.build()
 
     }
@@ -41,7 +42,7 @@ class AppConfig() {
     @Order(2)
     fun defaultSecurityFilterChain(http: HttpSecurity): SecurityFilterChain {
 
-        return http.formLogin(Customizer.withDefaults())
+        return http.formLogin{it.loginPage("https://4516-41-90-124-47.ngrok-free.app/login")}
             .logout(Customizer.withDefaults())
             .authorizeHttpRequests {
                 it.requestMatchers("/error").permitAll()
@@ -81,7 +82,7 @@ class AppConfig() {
         val portfolioId = UUID.randomUUID()
         val propertyId = UUID.randomUUID()
         val portfolioUrlSlug = portfolioName
-            .replace("'", "")
+            .replace("'", " ")
             .split(" ")[0]
             .lowercase()
         return PortfolioClaim(

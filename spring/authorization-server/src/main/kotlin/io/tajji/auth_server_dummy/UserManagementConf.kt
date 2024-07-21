@@ -6,8 +6,7 @@ import org.springframework.security.core.userdetails.User
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.crypto.password.NoOpPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
-import org.springframework.security.oauth2.core.AuthorizationGrantType.AUTHORIZATION_CODE
-import org.springframework.security.oauth2.core.AuthorizationGrantType.REFRESH_TOKEN
+import org.springframework.security.oauth2.core.AuthorizationGrantType.*
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod.CLIENT_SECRET_BASIC
 import org.springframework.security.oauth2.core.oidc.OidcScopes.OPENID
 import org.springframework.security.oauth2.server.authorization.client.InMemoryRegisteredClientRepository
