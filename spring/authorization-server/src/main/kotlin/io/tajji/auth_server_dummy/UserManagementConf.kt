@@ -42,7 +42,7 @@ class UserManagementConf {
             .authorizationGrantType(REFRESH_TOKEN)
             .redirectUri("https://tajji.io")
             .scope(OPENID)
-            .postLogoutRedirectUri("https://799c-41-90-124-47.ngrok-free.app/logoutSuccess")
+//            .postLogoutRedirectUri("https://799c-41-90-124-47.ngrok-free.app/logoutSuccess")
             .build()
 
         return InMemoryRegisteredClientRepository(listOf(registeredClient))

@@ -1,14 +1,16 @@
 package io.tajji.auth_server_dummy
 
+import io.tajji.auth_server_dummy.AccountRole.OperationalStatus
 import java.util.*
 
 data class PortfolioClaim(
     val portfolioId: UUID,
+    val operationalStatus: OperationalStatus,
     val portfolioName: String,
     val portfolioImageURL: String,
     val portfolioURL: String,
     val billingStatus: PortfolioBillingStatus,
-    val portfolioRoles: Set<PortfolioRole>,
+    val portfolioRoles: Set<AccountRole>,
     val propertyRoles: Set<PropertyRole>
 )
 
@@ -24,8 +26,9 @@ enum class PortfolioBillingStatus(val value: String) {
             IN_DEFAULT -> setOf(STABLE).contains(status)
         }
 }
+
 data class PortfolioRole(val portfolioId: UUID, val roles: Set<AccountRole>)
-data class PropertyRole(val propertyId: UUID, val roles: Set<AccountRole>)
+data class PropertyRole(val propertyId: UUID, val roles: AccountRole)
 
 enum class AccountRole(val value: String) {
     GUEST("guest"),
@@ -41,10 +44,23 @@ enum class AccountRole(val value: String) {
 
     companion object {
         fun fromValue(value: String): AccountRole {
-            return entries.find { it.value == value } ?: throw IllegalArgumentException("Could not derive account role from $value")
+            return entries.find { it.value == value }
+                ?: throw IllegalArgumentException("Could not derive account role from $value")
+        }
+    }
+
+
+    enum class OperationalStatus(val value: String) {
+        OPERATIONAL("OPERATIONAL"),
+        DEGRADED("DEGRADED"),
+        INOPERATIVE("INOPERATIVE");
+
+        fun canTransitionTo(status: OperationalStatus): Boolean {
+            return when (status) {
+                OPERATIONAL -> listOf(DEGRADED).contains(this)
+                DEGRADED -> listOf(INOPERATIVE, OPERATIONAL).contains(this)
+                INOPERATIVE -> listOf(OPERATIONAL, DEGRADED).contains(this)
+            }
         }
     }
 }
-
-
-

@@ -20,6 +20,22 @@
         </option>
       </GradleProjectSettings>
       <GradleProjectSettings>
+        <option name="externalProjectPath" value="$PROJECT_DIR$/cloud-native-applications/disaptcher-service" />
+        <option name="modules">
+          <set>
+            <option value="$PROJECT_DIR$/cloud-native-applications/disaptcher-service" />
+          </set>
+        </option>
+      </GradleProjectSettings>
+      <GradleProjectSettings>
+        <option name="externalProjectPath" value="$PROJECT_DIR$/cloud-native-applications/dispatcher-service" />
+        <option name="modules">
+          <set>
+            <option value="$PROJECT_DIR$/cloud-native-applications/dispatcher-service" />
+          </set>
+        </option>
+      </GradleProjectSettings>
+      <GradleProjectSettings>
         <option name="externalProjectPath" value="$PROJECT_DIR$/cloud-native-applications/edge-service" />
         <option name="modules">
           <set>

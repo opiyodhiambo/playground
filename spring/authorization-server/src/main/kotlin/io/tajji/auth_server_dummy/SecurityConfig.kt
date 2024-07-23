@@ -1,11 +1,15 @@
 package io.tajji.auth_server_dummy
 
 
+//import io.tajji.auth_server_dummy.OperationalStatus.OPERATIONAL
+import io.tajji.auth_server_dummy.AccountRole.OperationalStatus.OPERATIONAL
+import io.tajji.auth_server_dummy.PortfolioBillingStatus.STABLE
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.annotation.Order
 import org.springframework.security.config.Customizer
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
+import org.springframework.security.core.Authentication
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configuration.OAuth2AuthorizationServerConfiguration
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configurers.OAuth2AuthorizationServerConfigurer
 import org.springframework.security.oauth2.server.authorization.token.JwtEncodingContext
@@ -19,97 +23,103 @@ import java.util.UUID
 class AppConfig(private val roleBasedSuccessHandler: CustomAuthenticationSuccessHandler) {
 
     @Bean
-    @Order(1)
+    @Order(value = 1)
     fun asFilterChain(http: HttpSecurity): SecurityFilterChain {
         OAuth2AuthorizationServerConfiguration
             .applyDefaultSecurity(http)
 
         http.getConfigurer(OAuth2AuthorizationServerConfigurer::class.java)
             .oidc(Customizer.withDefaults())
-            .clientAuthentication { it.authenticationSuccessHandler(roleBasedSuccessHandler) }
 
         http.exceptionHandling {
             it.authenticationEntryPoint(
-                LoginUrlAuthenticationEntryPoint("https://4516-41-90-124-47.ngrok-free.app/login")
+                LoginUrlAuthenticationEntryPoint("/login")
             )
-
         }
+
         return http.build()
 
     }
 
     @Bean
-    @Order(2)
+    @Order(value = 2)
     fun defaultSecurityFilterChain(http: HttpSecurity): SecurityFilterChain {
 
-        return http.formLogin{it.loginPage("https://4516-41-90-124-47.ngrok-free.app/login")}
-            .logout(Customizer.withDefaults())
-            .authorizeHttpRequests {
-                it.requestMatchers("/error").permitAll()
-                it.anyRequest().authenticated()
-            }
-            .build()
+        http.formLogin(Customizer.withDefaults())
+
+        http.authorizeHttpRequests {
+            it.anyRequest().authenticated()
+        }
+
+        return http.build()
+
     }
 
     @Bean
-    fun jwtCustomizer(): OAuth2TokenCustomizer<JwtEncodingContext> =
-        OAuth2TokenCustomizer {
-            val portfolioDetails = listOf(
-                PortfolioDetails(
-                    portfolioName = "Mugo's Portfolio",
-                    portfolioImageURL = ""
-                ),
-                PortfolioDetails (
-                    portfolioName = "Kahiga's Portfolio",
-                    portfolioImageURL = ""
-                ),
-                PortfolioDetails(
-                    portfolioName = "Kambi's Portfolio",
-                    portfolioImageURL = "https://tajji.io/logo.png"
-                ),
-                PortfolioDetails(
-                    portfolioName = "Opiyo's Portfolio",
-                    portfolioImageURL = "https://tajji-landing-page-media.ams3.cdn.digitaloceanspaces.com/landing-page/bomasection.webp"
-                )
-            )
-            val portfolioMemberships = portfolioDetails.map { detail ->
-                createPortfolioClaim(portfolioName = detail.portfolioName, portfolioImageURL = detail.portfolioImageURL)
-            }.toSet()
-            it.claims.claim("portfolio_memberships", portfolioMemberships)
-        }
+    fun jwtCustomizer(): OAuth2TokenCustomizer<JwtEncodingContext> {
+        return OAuth2TokenCustomizer { context: JwtEncodingContext ->
+            val user = context.getPrincipal() as Authentication
+            val username = user.name
 
-    private fun createPortfolioClaim(portfolioName: String, portfolioImageURL: String): PortfolioClaim{
-        val portfolioId = UUID.randomUUID()
-        val propertyId = UUID.randomUUID()
-        val portfolioUrlSlug = portfolioName
-            .replace("'", " ")
-            .split(" ")[0]
-            .lowercase()
-        return PortfolioClaim(
-            portfolioId = portfolioId,
-            portfolioName = portfolioName,
-            portfolioURL = "https://$portfolioUrlSlug.tajji.io/api",
-            portfolioImageURL = portfolioImageURL,
-            billingStatus = PortfolioBillingStatus.STABLE,
-            portfolioRoles = setOf(
-                PortfolioRole(
-                    portfolioId = portfolioId,
-                    roles = setOf(
-                        AccountRole.ADMIN,
+//            val memberships = accounts.retrievePortfolioMemberships(
+//                username = username, pagination = Pageable.unpaged())
+//                .getOrElse { throw it }
+            val memberships = setOf(
+                PortfolioClaim(
+                    portfolioId = UUID.randomUUID(),
+                    operationalStatus = OPERATIONAL,
+                    portfolioName = "Mugo Portfolio",
+                    portfolioImageURL = "",
+                    portfolioURL = "https://mugo.tajji.io",
+                    billingStatus = STABLE,
+                    portfolioRoles = setOf(
                         AccountRole.LANDLORD
+                    ),
+                    propertyRoles = setOf(
+                        PropertyRole(
+                            propertyId = UUID.randomUUID(),
+                            roles = AccountRole.LANDLORD
+                        )
                     )
-                )
-            ),
-            propertyRoles = setOf(
-                PropertyRole(
-                    propertyId = propertyId,
-                    roles = setOf(
-                        AccountRole.RESIDENT
+                ),
+                PortfolioClaim(
+                    portfolioId = UUID.randomUUID(),
+                    operationalStatus = OPERATIONAL,
+                    portfolioName = "Opiyo Portfolio",
+                    portfolioImageURL = "https://tajji-landing-page-media.ams3.cdn.digitaloceanspaces.com/landing-page/bomasection.webp",
+                    portfolioURL = "https://opiyo.tajji.io",
+                    billingStatus = STABLE,
+                    portfolioRoles = setOf(
+                        AccountRole.LANDLORD
+                    ),
+                    propertyRoles = setOf(
+                        PropertyRole(
+                            propertyId = UUID.randomUUID(),
+                            roles = AccountRole.LANDLORD
+                        )
+                    )
+                ),
+                PortfolioClaim(
+                    portfolioId = UUID.randomUUID(),
+                    operationalStatus = OPERATIONAL,
+                    portfolioName = "Kambi Portfolio",
+                    portfolioImageURL = "https://tajji.io/logo.png",
+                    portfolioURL = "https://kambi.tajji.io",
+                    billingStatus = STABLE,
+                    portfolioRoles = setOf(
+                        AccountRole.LANDLORD
+                    ),
+                    propertyRoles = setOf(
+                        PropertyRole(
+                            propertyId = UUID.randomUUID(),
+                            roles = AccountRole.LANDLORD
+                        )
                     )
                 )
             )
-        )
 
+            context.claims.claim("portfolio_memberships", memberships)
+        }
     }
 }
 
