@@ -26,10 +26,14 @@ dependencies {
 	implementation("io.projectreactor.kotlin:reactor-kotlin-extensions")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
+	implementation("org.springframework.cloud:spring-cloud-stream-binder-rabbit")
+	implementation("org.springframework.cloud:spring-cloud-stream")
+
 	runtimeOnly("org.flywaydb:flyway-core")
 	runtimeOnly("org.postgresql:postgresql")
 	runtimeOnly("org.postgresql:r2dbc-postgresql")
 	runtimeOnly("org.springframework:spring-jdbc")
+
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.springframework.boot:spring-boot-testcontainers")
 	testImplementation("io.projectreactor:reactor-test")
@@ -37,6 +41,16 @@ dependencies {
 	testImplementation("org.testcontainers:junit-jupiter")
 	testImplementation("org.testcontainers:postgresql")
 	testImplementation("org.testcontainers:r2dbc")
+	testImplementation("org.springframework.cloud:spring-cloud-stream") {
+		artifact {
+			name = "spring-cloud-stream"
+			extension = "jar"
+			type = "test-jar"
+			classifier = "test-binder"
+		}
+	}
+
+
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 

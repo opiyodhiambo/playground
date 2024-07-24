@@ -1,4 +1,4 @@
-package com.adventure.order_service.dao
+package com.adventure.order_service.dto
 
 import org.springframework.data.repository.reactive.ReactiveCrudRepository
 

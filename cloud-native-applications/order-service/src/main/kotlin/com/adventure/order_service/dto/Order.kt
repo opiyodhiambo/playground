@@ -1,4 +1,4 @@
-package com.adventure.order_service.dao
+package com.adventure.order_service.dto
 
 import com.adventure.order_service.datamodel.OrderStatus
 import org.springframework.data.annotation.CreatedDate

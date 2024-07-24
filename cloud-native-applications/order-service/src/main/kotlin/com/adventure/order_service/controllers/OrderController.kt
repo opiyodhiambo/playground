@@ -1,6 +1,6 @@
 package com.adventure.order_service.controllers
 
-import com.adventure.order_service.dao.Order
+import com.adventure.order_service.dto.Order
 import com.adventure.order_service.datamodel.OrderRequest
 import com.adventure.order_service.service.OrderService
 import jakarta.validation.Valid
