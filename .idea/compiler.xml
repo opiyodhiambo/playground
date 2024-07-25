@@ -13,10 +13,27 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="auth-server" target="21" />
+      <module name="catalog-service" target="21" />
+      <module name="catalog-service.main" target="21" />
+      <module name="catalog-service.test" target="21" />
       <module name="com.adventure.disaptcher-service" target="21" />
       <module name="com.adventure.disaptcher-service.main" target="21" />
       <module name="com.adventure.disaptcher-service.test" target="21" />
+      <module name="config-service" target="21" />
+      <module name="config-service.main" target="21" />
+      <module name="config-service.test" target="21" />
+      <module name="disaptcher-service" target="21" />
+      <module name="disaptcher-service.main" target="21" />
+      <module name="disaptcher-service.test" target="21" />
+      <module name="dispatcher-service" target="21" />
+      <module name="dispatcher-service.main" target="21" />
+      <module name="dispatcher-service.test" target="21" />
+      <module name="edge-service" target="21" />
+      <module name="edge-service.main" target="21" />
+      <module name="edge-service.test" target="21" />
+      <module name="order-service" target="21" />
+      <module name="order-service.main" target="21" />
+      <module name="order-service.test" target="21" />
       <module name="resource-server" target="21" />
     </bytecodeTargetLevel>
   </component>

@@ -1,28 +1,40 @@
 package com.adventure.auth_server.api
 
-import com.adventure.auth_server.auth.components.InMemoryUserStore
+import com.adventure.auth_server.auth.components.CustomAuthenticationProvider
+import com.adventure.auth_server.auth.components.CustomUserDetailsService
 import com.adventure.auth_server.auth.components.JwtTokenService
+import com.adventure.auth_server.auth.config.AccountStatus
+import com.adventure.auth_server.auth.persistence.AccountRole
+import com.adventure.auth_server.auth.persistence.UsersEntity
+import com.adventure.auth_server.auth.persistence.UsersRepository
+import org.slf4j.LoggerFactory
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
+import java.util.*
 
 @Service
 class AccountCreationService(
-    private val inMemoryUserStore: InMemoryUserStore,
-    private val jwtTokenService: JwtTokenService
+    private val customUserDetailsService: CustomUserDetailsService,
+    private val jwtTokenService: JwtTokenService,
+    private val usersRepository: UsersRepository,
+    private val customAuthenticationProvider: CustomAuthenticationProvider
 ) {
-    fun createAndAuthenticateAccount(request: SubmitCredentialsRequest): ResponseEntity<Any> {
+    private val logger = LoggerFactory.getLogger(this::class.java)
+
+    fun createAndAuthenticateAccount(request: SubmitCredentialsRequest): ResponseEntity<Void> {
         if (!request.termsOfUse) {
             throw RuntimeException("Please read and consent to the terms of service")
         } else {
             createAccount(emailAddress = request.emailAddress, password = request.password)
             val token = authenticateAccount(emailAddress = request.emailAddress, password = request.password)
+            logger.info("generated token :: $token")
             val headers = HttpHeaders().apply {
                 set(HttpHeaders.AUTHORIZATION, "Bearer $token")
-                set(HttpHeaders.LOCATION, "https://tajji.io")
+                set(HttpHeaders.LOCATION, "https://8bbcefd4c8917e919c84130e570a334a.serveo.net")
             }
-
+            logger.info("generated headers :: $headers")
             return ResponseEntity
                 .status(HttpStatus.FOUND)
                 .headers(headers)
@@ -31,7 +43,7 @@ class AccountCreationService(
     }
 
     private fun authenticateAccount(emailAddress: String, password: String): String {
-        return if (inMemoryUserStore.authenticate(emailAddress = emailAddress, password = password)) {
+        return if (customUserDetailsService.authenticateNewAccount(emailAddress = emailAddress, password = password)) {
             jwtTokenService.generateToken(username = emailAddress)
         } else {
             throw IllegalArgumentException("Authentication failed")
@@ -39,6 +51,14 @@ class AccountCreationService(
     }
 
     private fun createAccount(emailAddress: String, password: String) {
-        inMemoryUserStore.addUser(emailAddress = emailAddress, password = password)
+        val usersEntity = UsersEntity.newUser(
+            principalId = UUID.randomUUID(),
+            userName = emailAddress,
+            password = password,
+            status = AccountStatus.EMAIL_VERIFICATION_PENDING,
+            role = AccountRole.LANDLORD
+        )
+
+        usersRepository.save(usersEntity)
     }
 }

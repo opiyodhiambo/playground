@@ -4,50 +4,18 @@
   <component name="GradleSettings">
     <option name="linkedExternalProjectsSettings">
       <GradleProjectSettings>
-        <option name="externalProjectPath" value="$PROJECT_DIR$/cloud-native-applications/catalog-service" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$/signup-poc/auth-server" />
         <option name="modules">
           <set>
-            <option value="$PROJECT_DIR$/cloud-native-applications/catalog-service" />
+            <option value="$PROJECT_DIR$/signup-poc/auth-server" />
           </set>
         </option>
       </GradleProjectSettings>
       <GradleProjectSettings>
-        <option name="externalProjectPath" value="$PROJECT_DIR$/cloud-native-applications/config-service" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$/signup-poc/onboarding-svc" />
         <option name="modules">
           <set>
-            <option value="$PROJECT_DIR$/cloud-native-applications/config-service" />
-          </set>
-        </option>
-      </GradleProjectSettings>
-      <GradleProjectSettings>
-        <option name="externalProjectPath" value="$PROJECT_DIR$/cloud-native-applications/disaptcher-service" />
-        <option name="modules">
-          <set>
-            <option value="$PROJECT_DIR$/cloud-native-applications/disaptcher-service" />
-          </set>
-        </option>
-      </GradleProjectSettings>
-      <GradleProjectSettings>
-        <option name="externalProjectPath" value="$PROJECT_DIR$/cloud-native-applications/dispatcher-service" />
-        <option name="modules">
-          <set>
-            <option value="$PROJECT_DIR$/cloud-native-applications/dispatcher-service" />
-          </set>
-        </option>
-      </GradleProjectSettings>
-      <GradleProjectSettings>
-        <option name="externalProjectPath" value="$PROJECT_DIR$/cloud-native-applications/edge-service" />
-        <option name="modules">
-          <set>
-            <option value="$PROJECT_DIR$/cloud-native-applications/edge-service" />
-          </set>
-        </option>
-      </GradleProjectSettings>
-      <GradleProjectSettings>
-        <option name="externalProjectPath" value="$PROJECT_DIR$/cloud-native-applications/order-service" />
-        <option name="modules">
-          <set>
-            <option value="$PROJECT_DIR$/cloud-native-applications/order-service" />
+            <option value="$PROJECT_DIR$/signup-poc/onboarding-svc" />
           </set>
         </option>
       </GradleProjectSettings>

@@ -1,0 +1,8 @@
+server:
+  port: 9000
+spring:
+  application:
+  name: onboarding-svc
+
+jwt:
+  secret-key: AbCdEf1234567890GhiJklMnoPqrStuvWxyz0123456789AbCdEfGhiJklMnoPqrStuvWxyz

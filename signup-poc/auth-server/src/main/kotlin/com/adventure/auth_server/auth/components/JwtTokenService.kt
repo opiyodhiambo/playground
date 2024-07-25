@@ -4,15 +4,23 @@ package com.adventure.auth_server.auth.components
 
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm.*
+import io.jsonwebtoken.security.Keys
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import java.util.Date
-import java.util.UUID
+import javax.crypto.SecretKey
 
 @Suppress("DEPRECATION")
 @Service
 class JwtTokenService {
 
-    private val secretKey = "auth-server-signing-key"
+    @Value("\${jwt.secret-key}")
+    private lateinit var secretKeyString: String
+
+    private val hashedSecretKey: SecretKey by lazy {
+        Keys.hmacShaKeyFor(secretKeyString.toByteArray())
+    }
+
 
     fun generateToken(username: String): String {
         val now = Date()
@@ -27,7 +35,7 @@ class JwtTokenService {
             .claims(claims)
             .issuedAt(now)
             .expiration(validity)
-            .signWith(HS256, secretKey)
+            .signWith(HS256, hashedSecretKey)
             .compact()
     }
 }
