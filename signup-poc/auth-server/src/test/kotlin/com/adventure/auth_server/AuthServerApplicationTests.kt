@@ -30,59 +30,63 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.util.*
 import kotlin.test.assertEquals
 
-//@SpringBootTest
-//@AutoConfigureMockMvc
-//class AuthServerApplicationTests {
-//    @Autowired
-//    private lateinit var mockMvc: MockMvc
-//
-//    @Autowired
-//    private lateinit var roleBasedAuthenticationHandle: RoleBasedAuthenticationHandler
-//
-//    @Autowired
-//    private lateinit var usersRepository: UsersRepository
-//
-//    @Test
-//    fun `should create account and redirect with JWT token`() {
-//
-//        val request = SubmitCredentialsRequest(
-//            emailAddress = "test@tajji.io",
-//            password = "password",
-//            termsOfUse = true
-//        )
-//
-//        mockMvc.perform(
-//            MockMvcRequestBuilders.post("/onboarding/submitCredentials")
-//                .contentType(MediaType.APPLICATION_JSON)
-//                .content(ObjectMapper().writeValueAsString(request))
-//        )
-//            .andExpect(MockMvcResultMatchers.status().isFound)
-//            .andExpect(MockMvcResultMatchers.header().string(HttpHeaders.LOCATION, "https://tajji.io"))
-//            .andReturn()
-//    }
-//
-//    @Test
-//    fun `should redirect to success URL if account status is active`() {
-//        val request = MockHttpServletRequest()
-//        val response = MockHttpServletResponse()
-//        val authentication = Mockito.mock(Authentication::class.java)
-//        val usersEntity = UsersEntity.newUser(
-//            principalId = UUID.randomUUID(),
-//            userName = "user@tajji.io",
-//            password = "password",
-//            status = AccountStatus.EMAIL_VERIFICATION_PENDING,
-//            role = AccountRole.LANDLORD
-//        )
-//        val userDetails = CustomUserDetails(usersEntity = usersEntity)
-//        Mockito.`when`(authentication.details).thenReturn(userDetails)
-//        roleBasedAuthenticationHandle.onAuthenticationSuccess(
-//            request, response, authentication
-//        )
-//        assertEquals(response.redirectedUrl.toString(), "https://1d1dc82944ab93060cbb7abd4449a0b0.serveo.net/platformOnboarding")
-//    }
-//}
-//
-//data class LoginRequest(
-//    val userName: String,
-//    val password: String
-//)
+@SpringBootTest
+@AutoConfigureMockMvc
+class AuthServerApplicationTests {
+
+    @Autowired
+    private lateinit var mockMvc: MockMvc
+
+    @Autowired
+    private lateinit var roleBasedAuthenticationHandle: RoleBasedAuthenticationHandler
+
+    @Autowired
+    private lateinit var usersRepository: UsersRepository
+
+    @Test
+    fun `should create account and redirect with JWT token`() {
+
+        val request = SubmitCredentialsRequest(
+            emailAddress = "test@tajji.io",
+            password = "password",
+            termsOfUse = true
+        )
+
+        mockMvc.perform(
+            MockMvcRequestBuilders.post("/onboarding/submitCredentials")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(ObjectMapper().writeValueAsString(request))
+        )
+            .andExpect(status().isOk)
+            .andExpect(MockMvcResultMatchers.content().string("Karibu Tajji"))
+            .andReturn()
+    }
+
+    @Test
+    fun `should redirect to success URL if account status is active`() {
+        val request = MockHttpServletRequest()
+        val response = MockHttpServletResponse()
+        val authentication = Mockito.mock(Authentication::class.java)
+        val usersEntity = UsersEntity.newUser(
+            principalId = UUID.randomUUID(),
+            userName = "user@tajji.io",
+            password = "password",
+            status = AccountStatus.EMAIL_VERIFICATION_PENDING,
+            role = AccountRole.LANDLORD
+        )
+        val userDetails = CustomUserDetails(usersEntity = usersEntity)
+        Mockito.`when`(authentication.details).thenReturn(userDetails)
+        roleBasedAuthenticationHandle.onAuthenticationSuccess(
+            request, response, authentication
+        )
+        assertEquals(
+            response.redirectedUrl.toString(),
+            "https://1d1dc82944ab93060cbb7abd4449a0b0.serveo.net/platformOnboarding"
+        )
+    }
+}
+
+data class LoginRequest(
+    val userName: String,
+    val password: String
+)

@@ -25,3 +25,4 @@ enum class AccountStatus(status: String) {
     KYC_FAILED("KYC FAILED"),
     KYC_PASSED("KYC PASSED"),
 }
+

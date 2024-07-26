@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController
 class AccountCreationController(private val accountCreationService: AccountCreationService) {
 
     @PostMapping(SUBMIT_CREDENTIALS)
-    fun submitCredentials(@RequestBody submitCredentialsRequest: SubmitCredentialsRequest): ResponseEntity<Void> {
+    fun submitCredentials(@RequestBody submitCredentialsRequest: SubmitCredentialsRequest): ResponseEntity<String> {
         return accountCreationService.createAndAuthenticateAccount(request = submitCredentialsRequest)
     }
 

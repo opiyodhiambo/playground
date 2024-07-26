@@ -12,6 +12,9 @@ import org.springframework.security.oauth2.server.authorization.config.annotatio
 import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint
+import org.springframework.web.cors.CorsConfiguration
+import org.springframework.web.cors.CorsConfigurationSource
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 
 @Configuration
 class SecurityConfiguration(private val roleBasedAuthenticationHandler: RoleBasedAuthenticationHandler) {
@@ -41,16 +44,27 @@ class SecurityConfiguration(private val roleBasedAuthenticationHandler: RoleBase
     fun defaultSecurityFilterChain(httpSecurity: HttpSecurity): SecurityFilterChain {
 
         return httpSecurity
-            .csrf {
-                it
-                    .ignoringRequestMatchers("/onboarding/submitCredentials")
-            }
+            .csrf { it.disable() }
+            .cors { it.configurationSource(corsConfigurationSource()) }
             .formLogin(Customizer.withDefaults())
             .authorizeHttpRequests {
                 it.requestMatchers("/onboarding/**").permitAll()
                     .anyRequest().authenticated()
             }
             .build()
+    }
+
+    @Bean
+    fun corsConfigurationSource(): CorsConfigurationSource {
+
+        val corsConfiguration = CorsConfiguration()
+        corsConfiguration.allowedOrigins = listOf("*")
+        corsConfiguration.allowedMethods = listOf("GET", "POST")
+        corsConfiguration.allowedHeaders = listOf("*")
+        val urlBasedCorsConfigurationSource = UrlBasedCorsConfigurationSource()
+        urlBasedCorsConfigurationSource.registerCorsConfiguration("/**", corsConfiguration)
+
+        return urlBasedCorsConfigurationSource
     }
 
     @Bean
