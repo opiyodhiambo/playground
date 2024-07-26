@@ -23,6 +23,7 @@ spring:
     gateway:
       default-filters:
         - SaveSession
+        - TokenRelay
         - name: Retry
           args:
             retries: 3
