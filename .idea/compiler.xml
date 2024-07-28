@@ -28,9 +28,6 @@
       <module name="dispatcher-service" target="21" />
       <module name="dispatcher-service.main" target="21" />
       <module name="dispatcher-service.test" target="21" />
-      <module name="edge-service" target="21" />
-      <module name="edge-service.main" target="21" />
-      <module name="edge-service.test" target="21" />
       <module name="order-service" target="21" />
       <module name="order-service.main" target="21" />
       <module name="order-service.test" target="21" />

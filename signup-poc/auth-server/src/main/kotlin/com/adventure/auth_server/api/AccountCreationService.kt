@@ -23,7 +23,7 @@ class AccountCreationService(
 ) {
     private val logger = LoggerFactory.getLogger(this::class.java)
 
-    fun createAndAuthenticateAccount(request: SubmitCredentialsRequest): ResponseEntity<String> {
+    fun createAndAuthenticateAccount(request: SubmitCredentialsRequest): ResponseEntity<Void> {
         if (!request.termsOfUse) {
             throw RuntimeException("Please read and consent to the terms of service")
         } else {
@@ -32,12 +32,14 @@ class AccountCreationService(
             logger.info("generated token :: $token")
             val headers = HttpHeaders().apply {
                 set(HttpHeaders.AUTHORIZATION, "Bearer $token")
+                set(HttpHeaders.LOCATION, "http://localhost:5174")
+
             }
             logger.info("generated headers :: $headers")
             return ResponseEntity
-                .status(HttpStatus.OK)
+                .status(HttpStatus.FOUND)
                 .headers(headers)
-                .body("Karibu Tajji")
+                .build()
 
         }
     }

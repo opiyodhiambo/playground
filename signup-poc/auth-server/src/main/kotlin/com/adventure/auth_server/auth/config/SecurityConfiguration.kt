@@ -61,6 +61,7 @@ class SecurityConfiguration(private val roleBasedAuthenticationHandler: RoleBase
         corsConfiguration.allowedOrigins = listOf("*")
         corsConfiguration.allowedMethods = listOf("GET", "POST")
         corsConfiguration.allowedHeaders = listOf("*")
+        corsConfiguration.exposedHeaders = listOf("Authorization")
         val urlBasedCorsConfigurationSource = UrlBasedCorsConfigurationSource()
         urlBasedCorsConfigurationSource.registerCorsConfiguration("/**", corsConfiguration)
 
