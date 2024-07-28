@@ -1,5 +1,7 @@
 package com.adventure.onboarding_svc.api
 
+import com.fasterxml.jackson.annotation.JsonProperty
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RestController
 
@@ -7,9 +9,9 @@ import org.springframework.web.bind.annotation.RestController
 class OnboardingController {
 
     @GetMapping(GET_ACCOUNT_STATUS)
-    fun getAccountStatus(): String {
+    fun getAccountStatus(): ResponseEntity<GetAccountStatusResponse> {
         val randomStatus = AccountStatus.entries.random()
-        return randomStatus.name
+        return ResponseEntity.ok(GetAccountStatusResponse(accountStatus = randomStatus))
     }
 
     companion object {
@@ -26,3 +28,6 @@ enum class AccountStatus(status: String) {
     KYC_PASSED("KYC PASSED"),
 }
 
+data class GetAccountStatusResponse(
+    @JsonProperty("account_status") val accountStatus: AccountStatus
+)
