@@ -1,5 +1,6 @@
 package com.adventure.auth_server.api
 
+import com.adventure.auth_server.api.AccountCreationController.SubmitCredentialsRequest
 import com.adventure.auth_server.auth.components.CustomAuthenticationProvider
 import com.adventure.auth_server.auth.components.CustomUserDetailsService
 import com.adventure.auth_server.auth.components.JwtTokenService

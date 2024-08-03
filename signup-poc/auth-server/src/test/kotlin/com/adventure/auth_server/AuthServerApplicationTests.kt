@@ -1,28 +1,25 @@
 package com.adventure.auth_server
 
-import com.adventure.auth_server.api.SubmitCredentialsRequest
+import com.adventure.auth_server.api.AccountCreationController.LoginRequest
+import com.adventure.auth_server.api.AccountCreationController.SubmitCredentialsRequest
 import com.adventure.auth_server.auth.components.CustomUserDetails
-import com.adventure.auth_server.auth.components.Users
+import com.adventure.auth_server.auth.components.CustomUserDetailsService
 import com.adventure.auth_server.auth.config.AccountStatus
 import com.adventure.auth_server.auth.config.RoleBasedAuthenticationHandler
 import com.adventure.auth_server.auth.persistence.AccountRole
 import com.adventure.auth_server.auth.persistence.UsersEntity
 import com.adventure.auth_server.auth.persistence.UsersRepository
 import com.fasterxml.jackson.databind.ObjectMapper
-import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.http.HttpHeaders
+import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.MediaType
 import org.springframework.mock.web.MockHttpServletRequest
 import org.springframework.mock.web.MockHttpServletResponse
-import org.springframework.security.authentication.TestingAuthenticationToken
 import org.springframework.security.core.Authentication
-import org.springframework.security.core.authority.SimpleGrantedAuthority
-import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
@@ -42,6 +39,9 @@ class AuthServerApplicationTests {
 
     @Autowired
     private lateinit var usersRepository: UsersRepository
+
+    @MockBean
+    private lateinit var customUserDetailsService: CustomUserDetailsService
 
     @Test
     fun `should create account and redirect with JWT token`() {
@@ -83,6 +83,65 @@ class AuthServerApplicationTests {
             response.redirectedUrl.toString(),
             "https://1d1dc82944ab93060cbb7abd4449a0b0.serveo.net/platformOnboarding"
         )
+    }
+
+    @Test
+    fun `should return Ok for authenticated user`() {
+
+        val request = LoginRequest(
+            username = "example@example.com",
+            password = "yourPassword"
+        )
+
+        // Create a mock UsersEntity
+        val usersEntity = UsersEntity.newUser(
+            principalId = UUID.randomUUID(),
+            userName = "example@example.com",
+            password = "yourPassword",
+            role = AccountRole.LANDLORD,
+            status = AccountStatus.EMAIL_VERIFICATION_PENDING
+        )
+        usersRepository.save(usersEntity)
+        Thread.sleep(3000)
+
+        // Perform the login test
+        mockMvc.perform(
+            MockMvcRequestBuilders.post("/authenticateUser")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(ObjectMapper().writeValueAsString(request))
+        )
+            .andExpect(MockMvcResultMatchers.status().isOk)
+            .andExpect(MockMvcResultMatchers.content().string("yes"))
+            .andReturn()
+    }
+
+    @Test
+    fun `should redirect to customLoginPage on unauthenticated user`() {
+
+        val request = LoginRequest(
+            username = "example@example.com",
+            password = "yourPassword"
+        )
+
+        // Create a mock UsersEntity
+        val usersEntity = UsersEntity.newUser(
+            principalId = UUID.randomUUID(),
+            userName = "example@example.com",
+            password = "yourPassword",
+            role = AccountRole.LANDLORD,
+            status = AccountStatus.EMAIL_VERIFICATION_PENDING
+        )
+        usersRepository.save(usersEntity)
+
+        // Perform the login test
+        mockMvc.perform(
+            MockMvcRequestBuilders.post("/authenticateUser")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(ObjectMapper().writeValueAsString(request))
+        )
+            .andExpect(MockMvcResultMatchers.status().is3xxRedirection)
+            .andExpect(MockMvcResultMatchers.header().string("Location", "tajji.io"))
+            .andReturn()
     }
 }
 

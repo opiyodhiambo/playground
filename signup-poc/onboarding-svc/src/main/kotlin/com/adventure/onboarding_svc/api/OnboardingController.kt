@@ -19,13 +19,24 @@ class OnboardingController {
     }
 }
 
-enum class AccountStatus(status: String) {
-    ACTIVE("ACTIVE"),
-    EMAIL_VERIFICATION_PENDING("EMAIL VERIFICATION PENDING"),
-    PHONE_NUMBER_VERIFICATION_PENDING("PHONE NUMBER VERIFICATION PENDING"),
-    KYC_INITIATED("KYC INITIATED"),
-    KYC_FAILED("KYC FAILED"),
-    KYC_PASSED("KYC PASSED"),
+enum class AccountStatus(val value: String) {
+    EMAIL_ADDRESS_VERIFICATION_PENDING("EMAIL ADDRESS VERIFICATION PENDING"),
+//    PHONE_NUMBER_VERIFICATION_PENDING("PHONE NUMBER VERIFICATION PENDING"),
+//    KYC_PENDING("KYC PENDING"),
+//    KYC_INITIATED("KYC INITIATED"),
+//    PAYMENT_METHOD_LINKING_PENDING("PAYMENT METHOD LINKING PENDING"),
+    ACTIVE("ACTIVE");
+//    SUSPENDED("SUSPENDED");
+
+    fun canTransitionTo(status: AccountStatus): Boolean = when (this) {
+        EMAIL_ADDRESS_VERIFICATION_PENDING -> setOf(ACTIVE).contains(status)
+//        PHONE_NUMBER_VERIFICATION_PENDING -> setOf(KYC_PENDING).contains(status)
+//        KYC_PENDING -> setOf(KYC_INITIATED).contains(status)
+//        KYC_INITIATED -> setOf(KYC_PENDING, PAYMENT_METHOD_LINKING_PENDING, ACTIVE).contains(status)
+//        PAYMENT_METHOD_LINKING_PENDING -> setOf(ACTIVE).contains(status)
+        ACTIVE -> setOf(ACTIVE).contains(status)
+//        SUSPENDED -> setOf(ACTIVE).contains(status)
+    }
 }
 
 data class GetAccountStatusResponse(

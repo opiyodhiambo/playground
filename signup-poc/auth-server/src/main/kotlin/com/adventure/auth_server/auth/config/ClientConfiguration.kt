@@ -5,6 +5,8 @@ import com.adventure.auth_server.auth.components.InMemoryUserStore
 import com.adventure.auth_server.auth.persistence.UsersRepository
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.security.core.userdetails.User
+import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.NoOpPasswordEncoder
@@ -16,6 +18,7 @@ import org.springframework.security.oauth2.core.oidc.OidcScopes
 import org.springframework.security.oauth2.server.authorization.client.InMemoryRegisteredClientRepository
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository
+import org.springframework.security.provisioning.InMemoryUserDetailsManager
 import java.util.*
 
 @Configuration
@@ -24,9 +27,19 @@ class ClientConfiguration(private val usersRepository: UsersRepository) {
     @Bean
     fun passwordEncoder(): PasswordEncoder = BCryptPasswordEncoder()
 
+//    @Bean
+//    fun userDetailsService(): UserDetailsService {
+//        return CustomUserDetailsService(usersRepository = usersRepository)
+//    }
+
     @Bean
     fun userDetailsService(): UserDetailsService {
-        return CustomUserDetailsService(usersRepository = usersRepository)
+        val user = User.withUsername("rieko@example.com")
+            .password(passwordEncoder().encode("12345678"))
+            .roles("read")
+            .build()
+
+        return InMemoryUserDetailsManager(user)
     }
 
     @Bean

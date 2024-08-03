@@ -30,6 +30,7 @@ class SecurityConfig {
             .csrf { it.disable() }
             .cors { it.configurationSource(corsConfigurationSource()) }
             .authorizeHttpRequests { it.anyRequest().authenticated() }
+
             .oauth2ResourceServer {
                 it
                     .jwt { jwt ->
