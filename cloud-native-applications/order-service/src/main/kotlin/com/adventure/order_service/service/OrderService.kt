@@ -5,15 +5,13 @@ import com.adventure.order_service.dto.OrderRepository
 import com.adventure.order_service.datamodel.OrderStatus
 import com.adventure.order_service.dto.Events
 import kotlinx.coroutines.reactor.flux
-import org.springframework.cloud.stream.function.StreamBridge
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 
 @Service
 class OrderService(
-    private val orderRepository: OrderRepository,
-    private val streamBridge: StreamBridge
+    private val orderRepository: OrderRepository
 ) {
 
     fun getAllOrders(): Flux<Order> {
@@ -46,7 +44,9 @@ class OrderService(
             quantity = existingOrder.quantity,
             status = OrderStatus.DISPATCHED,
             createdDate = existingOrder.createdDate,
+            createdBy = existingOrder.createdBy,
             lastModifiedDate = existingOrder.lastModifiedDate,
+            lastModifiedBy = existingOrder.lastModifiedBy,
             version = existingOrder.version
         )
     }

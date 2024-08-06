@@ -33,6 +33,7 @@ dependencies {
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
+	implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
 	implementation("org.flywaydb:flyway-core")
 	runtimeOnly("org.postgresql:postgresql")
 	compileOnly("org.springframework.boot:spring-boot-configuration-processor") // Compile-only dependency
