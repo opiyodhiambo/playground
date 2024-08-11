@@ -20,7 +20,9 @@ class SecurityConfig {
     fun filterChain(httpSecurity: HttpSecurity): SecurityFilterChain {
         return httpSecurity
             .authorizeHttpRequests {
-                it.requestMatchers(HttpMethod.GET, "/", "/books").permitAll()
+                it
+                    .requestMatchers("/actuator/**").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/", "/books").permitAll()
                     .anyRequest().hasRole("employee")
             }
             .oauth2ResourceServer { it.jwt{ } }

@@ -9,6 +9,7 @@ plugins {
 group = "com.adventure"
 version = "0.0.1-SNAPSHOT"
 extra["springCloudVersion"] = "2023.0.2"
+extra["otelVersion"] = "1.17.0"
 
 java {
 	toolchain {
@@ -35,7 +36,12 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
 	implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
 	implementation("org.flywaydb:flyway-core")
+	implementation("org.springframework.boot:spring-boot-starter-actuator")
+
 	runtimeOnly("org.postgresql:postgresql")
+	runtimeOnly("io.micrometer:micrometer-registry-prometheus")
+	runtimeOnly("io.opentelemetry.javaagent:opentelemetry-javaagent:${property("otelVersion")}")
+
 	compileOnly("org.springframework.boot:spring-boot-configuration-processor") // Compile-only dependency
 	annotationProcessor("org.springframework.boot:spring-boot-configuration-processor") // Annotation processor dependency
 	testImplementation("org.springframework.boot:spring-boot-starter-test")

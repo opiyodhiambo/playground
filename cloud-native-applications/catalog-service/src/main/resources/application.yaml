@@ -25,10 +25,32 @@ spring:
       maximum0pool-size: 5
   security:
     oauth2:
-      resourceserver:
+      resource-server:
         jwt:
           issuer-uri: http://localhost:8080/realms/PolarBookshop #A URI to the relevant authorization server, including Keycloak
-
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, prometheus, flyway, info
+  info:
+    env:
+      enabled: true
+  endpoint:
+    health:
+      show-details: always
+      show-components: always
+      probes:
+        enabled: true
+      group:
+        readiness:
+          include: readinessState, redis #Readiness probe will combine the application's readiness state and the Redis' availability
+  metrics:
+    tags:
+      application: ${spring.application.name}
+logging:
+  pattern:
+    level: "%5p [${spring.application.name},%X{trace_id},%X{span_id}]"
 
 #polar:
 #  greeting: Welcome to the local book catalog!
