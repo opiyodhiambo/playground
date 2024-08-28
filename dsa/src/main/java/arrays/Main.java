@@ -1,5 +1,8 @@
 package arrays;
 
+import arrays.DVD;
+import arrays.*;
+
 import java.util.Arrays;
 
 public class Main {
