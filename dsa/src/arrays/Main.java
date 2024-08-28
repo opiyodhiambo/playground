@@ -2,9 +2,10 @@ package arrays;
 
 import java.util.Arrays;
 
-public class DVDCollection {
+public class Main {
     public static void main(String[] args) {
 
+        //DVD collection
         DVD[] dvdCollection = new DVD[15];
         int numberOfDVDs = 0;
         dvdCollection[7] = new DVD("The Avengers", 2012, "Joss Whedon");;
