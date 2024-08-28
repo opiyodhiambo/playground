@@ -11,7 +11,7 @@ import org.springframework.boot.test.context.SpringBootTest
 
 @SpringBootTest
 @Provider("myAwesomeService")
-@PactBroker(host = "localhost", port = "9292")
+@PactBroker
 class PactProviderTests {
 
 	@Test

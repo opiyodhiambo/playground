@@ -1,2 +1,2 @@
 pactbroker:
-  host: http://localhost:9292
+  host: localhost
