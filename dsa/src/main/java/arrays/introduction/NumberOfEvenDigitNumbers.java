@@ -1,4 +1,4 @@
-package arrays;
+package arrays.introduction;
 
 /**
  * Given an array nums of integers,

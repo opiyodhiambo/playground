@@ -1,4 +1,4 @@
-package arrays;
+package arrays.introduction;
 
 public class DVD {
     public String name;

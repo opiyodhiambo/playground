@@ -1,4 +1,4 @@
-package arrays;
+package arrays.introduction;
 
 /**
  * Given an integer array nums sorted in non-decreasing order,
