@@ -35,10 +35,6 @@ public class Main {
         SquaresOfASortedArray squaresOfASortedArray = new SquaresOfASortedArray();
         int[] squaresOfASortedArraySolution = squaresOfASortedArray.sortedSquares(arraysToSquare);
 
-        //Duplicate Zeros
-        int[] duplicateZerosInput = {1,0,2,3,0,4,5,0};
-        DuplicateZeros duplicateZeros = new DuplicateZeros();
-        duplicateZeros.duplicateZeros(duplicateZerosInput);
 
         for (int i = 0; i < dvdCollection.length; i++) {
             if (dvdCollection[i] != null) {
