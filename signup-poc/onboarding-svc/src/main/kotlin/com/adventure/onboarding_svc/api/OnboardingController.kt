@@ -1,8 +1,11 @@
 package com.adventure.onboarding_svc.api
 
+import com.adventure.onboarding_svc.api.OnboardingController.Companion.REQUEST_NEW_EMAIL_VERIFICATION_CODE
 import com.fasterxml.jackson.annotation.JsonProperty
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
@@ -14,31 +17,39 @@ class OnboardingController {
         return ResponseEntity.ok(GetAccountStatusResponse(accountStatus = randomStatus))
     }
 
+    @PostMapping(SUBMIT_EMAIL_VERIFICATION_CODE)
+    fun submitEmailVerificationCode(@RequestBody submitEmailVerificationCodeRequest: SubmitEmailVerificationCodeRequest): ResponseEntity<Any> {
+        return if (submitEmailVerificationCodeRequest.verificationCode == VERIFICATION_CODE) {
+            ResponseEntity.ok().build()
+        } else {
+            ResponseEntity.badRequest().body("Invalid Verification code")
+        }
+    }
+
+    @PostMapping(REQUEST_NEW_EMAIL_VERIFICATION_CODE)
+    fun requestNewEmailVerificationCode(): ResponseEntity<Unit> = ResponseEntity.accepted().build()
+
     companion object {
         const val GET_ACCOUNT_STATUS = "/onboarding/getAccountStatus"
+        const val SUBMIT_EMAIL_VERIFICATION_CODE = "/onboarding/submitEmailVerificationCode"
+        const val REQUEST_NEW_EMAIL_VERIFICATION_CODE = "/onboarding/requestNewEmailVerificationCode"
+        private const val VERIFICATION_CODE = "123456"
     }
 }
 
 enum class AccountStatus(val value: String) {
     EMAIL_ADDRESS_VERIFICATION_PENDING("EMAIL ADDRESS VERIFICATION PENDING"),
-//    PHONE_NUMBER_VERIFICATION_PENDING("PHONE NUMBER VERIFICATION PENDING"),
-//    KYC_PENDING("KYC PENDING"),
-//    KYC_INITIATED("KYC INITIATED"),
-//    PAYMENT_METHOD_LINKING_PENDING("PAYMENT METHOD LINKING PENDING"),
     ACTIVE("ACTIVE");
-//    SUSPENDED("SUSPENDED");
 
     fun canTransitionTo(status: AccountStatus): Boolean = when (this) {
         EMAIL_ADDRESS_VERIFICATION_PENDING -> setOf(ACTIVE).contains(status)
-//        PHONE_NUMBER_VERIFICATION_PENDING -> setOf(KYC_PENDING).contains(status)
-//        KYC_PENDING -> setOf(KYC_INITIATED).contains(status)
-//        KYC_INITIATED -> setOf(KYC_PENDING, PAYMENT_METHOD_LINKING_PENDING, ACTIVE).contains(status)
-//        PAYMENT_METHOD_LINKING_PENDING -> setOf(ACTIVE).contains(status)
         ACTIVE -> setOf(ACTIVE).contains(status)
-//        SUSPENDED -> setOf(ACTIVE).contains(status)
     }
 }
 
 data class GetAccountStatusResponse(
     @JsonProperty("account_status") val accountStatus: AccountStatus
+)
+data class SubmitEmailVerificationCodeRequest(
+    @JsonProperty("verification_code") val verificationCode: String
 )
