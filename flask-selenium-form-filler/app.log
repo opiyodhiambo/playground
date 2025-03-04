@@ -1,0 +1,45 @@
+WARNING:werkzeug: * Debugger is active!
+INFO:werkzeug: * Debugger PIN: 518-307-878
+INFO:werkzeug: * Detected change in '/home/adventure/adventure/dev/playground/flask-selenium-form-filler/app.py', reloading
+2025-03-04 16:26:08,560 - WARNING -  * Debugger is active!
+2025-03-04 16:26:08,560 - INFO -  * Debugger PIN: 518-307-878
+2025-03-04 16:26:24,620 - INFO -  * Detected change in '/home/adventure/adventure/dev/playground/flask-selenium-form-filler/app.py', reloading
+2025-03-04 16:26:41,907 - INFO - ====== WebDriver manager ======
+2025-03-04 16:26:41,981 - INFO - Get LATEST chromedriver version for google-chrome
+2025-03-04 16:26:45,310 - INFO - Get LATEST chromedriver version for google-chrome
+2025-03-04 16:26:46,502 - INFO - There is no [linux64] chromedriver "133.0.6943.141" for browser google-chrome "133.0.6943" in cache
+2025-03-04 16:26:46,503 - INFO - Get LATEST chromedriver version for google-chrome
+2025-03-04 16:26:47,038 - INFO - WebDriver version 133.0.6943.141 selected
+2025-03-04 16:26:47,041 - INFO - Modern chrome version https://storage.googleapis.com/chrome-for-testing-public/133.0.6943.141/linux64/chromedriver-linux64.zip
+2025-03-04 16:26:47,041 - INFO - About to download new driver from https://storage.googleapis.com/chrome-for-testing-public/133.0.6943.141/linux64/chromedriver-linux64.zip
+2025-03-04 16:26:47,521 - INFO - Driver downloading response is 200
+2025-03-04 16:26:54,227 - INFO - Get LATEST chromedriver version for google-chrome
+2025-03-04 16:26:54,618 - INFO - Driver has been saved in cache [/home/adventure/.wdm/drivers/chromedriver/linux64/133.0.6943.141]
+2025-03-04 16:28:30,063 - INFO - Starting Flask app....
+2025-03-04 16:28:34,070 - INFO - Starting Flask app....
+2025-03-04 16:29:10,513 - INFO - Starting Flask app....
+2025-03-04 16:30:44,281 - INFO - Starting Flask app....
+2025-03-04 16:31:51,234 - INFO - Starting Flask app....
+2025-03-04 16:31:51,252 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-03-04 16:31:51,252 - INFO - [33mPress CTRL+C to quit[0m
+2025-03-04 16:31:51,253 - INFO -  * Restarting with stat
+2025-03-04 16:31:51,545 - INFO - Starting Flask app....
+2025-03-04 16:31:51,557 - WARNING -  * Debugger is active!
+2025-03-04 16:31:51,557 - INFO -  * Debugger PIN: 518-307-878
+2025-03-04 16:32:20,904 - INFO - Starting virenta scrapper...
+2025-03-04 16:32:20,904 - INFO - ====== WebDriver manager ======
+2025-03-04 16:32:20,986 - INFO - Get LATEST chromedriver version for google-chrome
+2025-03-04 16:32:21,214 - INFO - Get LATEST chromedriver version for google-chrome
+2025-03-04 16:32:21,440 - INFO - Driver [/home/adventure/.wdm/drivers/chromedriver/linux64/133.0.6943.141/chromedriver-linux64/chromedriver] found in cache
+2025-03-04 16:32:23,559 - INFO - Page title :: 
+2025-03-04 16:32:26,459 - INFO - Starting virenta scrapper...
+2025-03-04 16:32:26,459 - INFO - ====== WebDriver manager ======
+2025-03-04 16:32:26,537 - INFO - Get LATEST chromedriver version for google-chrome
+2025-03-04 16:32:26,728 - INFO - Get LATEST chromedriver version for google-chrome
+2025-03-04 16:32:26,925 - INFO - Driver [/home/adventure/.wdm/drivers/chromedriver/linux64/133.0.6943.141/chromedriver-linux64/chromedriver] found in cache
+2025-03-04 16:32:28,655 - INFO - Received request. Scraping Virenta Africa website...
+2025-03-04 16:32:28,655 - INFO - 127.0.0.1 - - [04/Mar/2025 16:32:28] "GET /submit HTTP/1.1" 200 -
+2025-03-04 16:32:28,718 - INFO - Page title :: 
+2025-03-04 16:32:33,776 - INFO - Received request. Scraping Virenta Africa website...
+2025-03-04 16:32:33,777 - INFO - 127.0.0.1 - - [04/Mar/2025 16:32:33] "GET /submit HTTP/1.1" 200 -
