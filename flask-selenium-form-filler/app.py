@@ -14,9 +14,10 @@ def scrape_virenta():
     selenium_driver = None
     try:
         selenium_driver = set_up_driver()
-        selenium_driver.get("https://google.com/")
+        selenium_driver.get("https://www.selenium.dev/selenium/web/index.html")
+        time.sleep(5)
         WebDriverWait(selenium_driver, 10).until(lambda d: d.title)
-        title = selenium_driver.title
+        title = selenium_driver.execute_script("return document.title;")
         logging.info(f"Page title: {title if title else 'Title not found'}")
 
     except Exception as e:
@@ -27,7 +28,7 @@ def scrape_virenta():
         if selenium_driver:
             selenium_driver.quit()
 
-    print(f"title :: {title}")
+    print(f"title :: {selenium_driver.capabilities}")
     return title
 
 
