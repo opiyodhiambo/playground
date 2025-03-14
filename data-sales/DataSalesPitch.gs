@@ -1,6 +1,6 @@
-const SPREAD_SHEET_ID = '18o2MMTKNm7jJpYsre3QKz5xjSpiHIiMsHUGhJcTmNTk';
-const SLIDES_ID = '119IiqDxsSv53iDMBV9GV7G7oY2f3Jq8awpTt5-hJUqA';
-const FOLDER_ID = "1VeU1J2oI5w-pmbFMOaO6i5AtgSuzBOiF";
+const SPREAD_SHEET_ID = 'SHEET_ID';
+const SLIDES_ID = 'SLIDES_ID';
+const FOLDER_ID = "FOLDER_ID";
 const BATCH_SIZE = 500;
 
 function generatePresentationData() {
