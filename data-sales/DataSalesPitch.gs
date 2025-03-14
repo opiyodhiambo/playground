@@ -1,133 +1,168 @@
-const SPREAD_SHEET_ID = '18o2MMTKNm7jJpYsre3QKz5xjSpiHIiMsHUGhJcTmNTk'
-const SLIDES_ID = '119IiqDxsSv53iDMBV9GV7G7oY2f3Jq8awpTt5-hJUqA'
+const SPREAD_SHEET_ID = '18o2MMTKNm7jJpYsre3QKz5xjSpiHIiMsHUGhJcTmNTk';
+const SLIDES_ID = '119IiqDxsSv53iDMBV9GV7G7oY2f3Jq8awpTt5-hJUqA';
+const FOLDER_ID = "1VeU1J2oI5w-pmbFMOaO6i5AtgSuzBOiF";
+const BATCH_SIZE = 500;
 
 function generatePresentationData() {
+
+  clearExistingTriggers(); // Ensure no duplicate triggers
+
+  let scriptProperties = PropertiesService.getScriptProperties();
+  let lastProcessed = parseInt(scriptProperties.getProperty("lastProcessed") || "1", 10);
+  
   let spreadSheet = SpreadsheetApp.openById(SPREAD_SHEET_ID);
-  let slides = SlidesApp.openById(SLIDES_ID);
+  let slidesTemplate = DriveApp.getFileById(SLIDES_ID);
+
   let googleSlideMappingSheet = spreadSheet.getSheetByName("Google Slide mapping");
   let countySheet = spreadSheet.getSheetByName("Data_county_level");
   let customerSheet = spreadSheet.getSheetByName("Data_customer_level");
   let customerMonthlySheet = spreadSheet.getSheetByName("customer_monthly");
 
-  updateSlide19(countySheet, slides);
-  updateSlide20(countySheet, slides);
-  updateSlide23(countySheet, customerSheet, slides);
-  updateSlide24(countySheet, slides);
-  updateSlide25(customerMonthlySheet, slides);
-  updateSlide26(googleSlideMappingSheet, customerMonthlySheet, slides);
+  // Here, we exclude the first two rows (header + title row).
+  let headers = customerSheet.getDataRange().getValues()[1];
+  let customers = customerSheet.getDataRange().getValues().slice(2); 
+  let totalRows = customers.length;
+
+  let customerIdIndex = headers.indexOf("id RCU");
+  let departmentNameIndex = headers.indexOf("Département");
+  let departmentCodeIndex = headers.indexOf("dep code");
+
+
+  Logger.log(`Processing from row ${lastProcessed} to ${Math.min(lastProcessed + BATCH_SIZE, totalRows)}`);
+  
+  // Processing the customers in batches
+  for (let i = lastProcessed - 1; i < Math.min(lastProcessed - 1 + BATCH_SIZE, totalRows); i++) {
+    let customerRow = customers[i];
+    let customerId = customerRow[customerIdIndex]; 
+    let departmentName = customerRow[departmentNameIndex];
+    let departmentCode = customerRow[departmentCodeIndex];
+
+    let slides = createNewCustomerSlide(slidesTemplate, customerId, departmentName);
+
+    updateSlide19(departmentCode, departmentName, countySheet, slides);
+    updateSlide20(departmentCode, countySheet, slides);
+    updateSlide23(customerId, departmentCode, countySheet, customerSheet, slides);
+    updateSlide24(departmentCode, countySheet, slides);
+    updateSlide25(customerId, customerMonthlySheet, slides);
+    updateSlide26(customerId, googleSlideMappingSheet, customerMonthlySheet, slides);
+  }
+
+  lastProcessed += BATCH_SIZE;
+  if (lastProcessed < totalRows) {
+    scriptProperties.setProperty("lastProcessed", lastProcessed);
+    ScriptApp.newTrigger("generatePresentationData")
+      .timeBased()
+      .after(1 * 60 * 1000) // Execute in intervals of 1 minute to avoid google script timeout (2 minutes)
+      .create();
+  } else {
+    scriptProperties.deleteProperty("lastProcessed"); // All done
+    Logger.log("All templates processed!");
+
+    ScriptApp.newTrigger("generatePresentationData")
+      .timeBased()
+      .everyWeeks(2) // Runs again in 2 weeks
+      .create();
+  }
 }
 
 
-function updateSlide19(countySheet, slides) {
+function updateSlide19(departmentCode, departmentName, countySheet, slides) {
   Logger.log("Updating Slide 19");
   let slide = slides.getSlides()[18];
 
-  // All department names from Column B (dep)
-  let departments = countySheet.getRange("B:B").getValues().flat();
+  let departmentRow = extractDepartmentRow(departmentCode, countySheet);
+  if (!departmentRow) return;
+  
+  let visits = countySheet.getRange(`D${departmentRow}`).getValue();
+  let visitsEvol = countySheet.getRange(`I${departmentRow}`).getValue() * 100;
+  let contacts = countySheet.getRange(`F${departmentRow}`).getValue();
+  let contactsEvol = countySheet.getRange(`L${departmentRow}`).getValue() * 100;
+  let estimations = countySheet.getRange(`G${departmentRow}`).getValue();
+  let estimationsEvol = countySheet.getRange(`M${departmentRow}`).getValue() * 100;
 
-  // Looping through all the departments
-  for(let row = 1; row < departments.length; row++) {
-      let departmentName = departments[row];
-      if(!departmentName) continue;
+  let shapes = slide.getShapes();
 
-      // Extracting all values for visits, contacts and estimations
-      let visits = countySheet.getRange("D" + (row + 1)).getValue();
-      let visitsEvol = countySheet.getRange("I" + (row + 1)).getValue() * 100;
-      let contacts = countySheet.getRange("F" + (row + 1)).getValue();
-      let contactsEvol = countySheet.getRange("L" + (row + 1)).getValue() * 100;
-      let estimations = countySheet.getRange("G" + (row + 1)).getValue();
-      let estimationsEvol = countySheet.getRange("M" + (row + 1)).getValue() * 100;
-
-      let shapes = slide.getShapes();
-      // Update department name in title
-      shapes[2].getText().setText("Etat des lieux dans " + departmentName);
-
-      // Format numbers and percentages
-      shapes[8].getText().setText(visits.toString());
-      shapes[9].getText().setText(contacts.toString());
-      shapes[10].getText().setText(estimations.toString());
-      shapes[11].getText().setText(visitsEvol.toFixed() + "%");
-      shapes[12].getText().setText(contactsEvol.toFixed() + "%");
-      shapes[13].getText().setText(estimationsEvol.toFixed() + "%");
-  }
+  shapes[2].getText().setText(`Etat des lieux dans ${departmentName}`);
+  shapes[8].getText().setText(visits.toString());
+  shapes[9].getText().setText(contacts.toString());
+  shapes[10].getText().setText(estimations.toString());
+  shapes[11].getText().setText(visitsEvol.toFixed() + "%");
+  shapes[12].getText().setText(contactsEvol.toFixed() + "%");
+  shapes[13].getText().setText(estimationsEvol.toFixed() + "%");
 
   Logger.log("Slide 19 update completed.");
+  
 }
 
-function updateSlide20(countySheet, slides) {
+function updateSlide20(departmentCode, countySheet, slides) {
   Logger.log("Updating Slide 20");
   let slide = slides.getSlides()[19];
 
-  let shapes = slide.getShapes();
-  shapes.forEach((shape, index) => {
-    Logger.log(`Shape ${index}: ${shape.getText().asString()}`);
-  });
-
-  let departments = countySheet.getRange("B:B").getValues().flat();
-
-  for(let row = 1; row < departments.length; row++) {
-      let departmentName = departments[row];
-      if(!departmentName) continue;
-
-      // Extracting all values for visits, contacts and estimations
-      let averageSales = countySheet.getRange("N" + (row + 1)).getValue();
-      let apartmentPrice = countySheet.getRange("O" + (row + 1)).getValue();
-      let apartmentPriceChange = countySheet.getRange("P" + (row + 1)).getValue();
-      let mansionPrice = countySheet.getRange("Q" + (row + 1)).getValue();
-      let mansionPriceChange = countySheet.getRange("R" + (row + 1)).getValue();
-
-      let shapes = slide.getShapes();
-      // Update department name in title
-      shapes[3].getText().setText("Baromètre des prix dans " + departmentName);
-
-      // Format numbers and percentages
-      shapes[10].getText().setText(averageSales.toString());
-      shapes[13].getText().setText(averageSales.toString());
-      shapes[8].getText().setText(apartmentPrice.toLocaleString() + " €");
-      shapes[9].getText().setText((apartmentPriceChange * 100).toFixed(3) + " %");
-      shapes[11].getText().setText(mansionPrice.toLocaleString() + " €");
-      shapes[12].getText().setText((mansionPriceChange * 100).toFixed(3) + " %");
+  let textFinder = countySheet.getRange("A:A").createTextFinder(departmentCode).findNext();
+  if (!textFinder) {
+    Logger.log(`❌ Department code ${departmentCode} not found.`);
+    return;
   }
-  Logger.log("Slide 20 update completed.");
+
+  let departmentRow = extractDepartmentRow(departmentCode, countySheet);
+  if (!departmentRow) return;
+
+  let departmentName = countySheet.getRange(`B${departmentRow}`).getValue();
+  let averageSales = countySheet.getRange(`N${departmentRow}`).getValue();
+  let apartmentPrice = countySheet.getRange(`O${departmentRow}`).getValue();
+  let apartmentPriceChange = countySheet.getRange(`P${departmentRow}`).getValue();
+  let mansionPrice = countySheet.getRange(`Q${departmentRow}`).getValue();
+  let mansionPriceChange = countySheet.getRange(`R${departmentRow}`).getValue();
+
+  let shapes = slide.getShapes();
+
+  shapes[3].getText().setText(`Baromètre des prix dans ${departmentName}`);
+  shapes[10].getText().setText(averageSales.toString());
+  shapes[13].getText().setText(averageSales.toString());
+  shapes[8].getText().setText(apartmentPrice.toLocaleString() + " €");
+  shapes[9].getText().setText((apartmentPriceChange * 100).toFixed(3) + " %");
+  shapes[11].getText().setText(mansionPrice.toLocaleString() + " €");
+  shapes[12].getText().setText((mansionPriceChange * 100).toFixed(3) + " %");
+
+   Logger.log("Slide 20 update completed.");
+
 }
 
-function updateSlide23(countySheet, customerSheet, slides) {
+function updateSlide23(customerId, departmentCode, countySheet, customerSheet, slides) {
   Logger.log("Updating Slide 23");
   let slide = slides.getSlides()[22];
   let tables = slide.getTables();
+  if (tables.length === 0) {
+    Logger.log("❌ No tables found on Slide 23.");
+    return;
+  }
   let table = tables[0];
 
-  let customers = customerSheet.getRange("B:B").getValues().flat();
+  let customerRow = extractCustomerRow(customerId, customerSheet);
+  if (!customerRow) return;
 
-  for(let row = 2; row < customers.length; row++){ // Ignore the first 2 rows.
-    let customerName = customers[row];
-    if(!customerName) continue;
+  let priceInDepartment = getPriceOfGoodInDepartment(departmentCode, countySheet).toFixed()
+  if (priceInDepartment === null) return;
 
-    let departmentCode = customerSheet.getRange("J" + (row + 1)).getValue();
+  let mainPackage = customerSheet.getRange("Q" + (customerRow + 1)).getValue() + " - " +
+        customerSheet.getRange("R" + (customerRow + 1)).getValue() + " annonces";
 
-    let priceInDepartment = getPriceOfGoodInDepartment(departmentCode, countySheet).toFixed()
-    if (priceInDepartment === null) continue;
-
-    // Extracting the required values
-    let mainPackage = customerSheet.getRange("Q" + (row + 1)).getValue() + " - " +
-        customerSheet.getRange("R" + (row + 1)).getValue() + " annonces";
-
-    let subscriptionPrice = customerSheet.getRange("G" + (row + 1)).getValue() + "€"
-    let discountPercentage = customerSheet.getRange("H" + (row + 1)).getValue() * 100 + "%"
-    let adsPublished = customerSheet.getRange("R" + (row + 1)).getValue() +
+    let subscriptionPrice = customerSheet.getRange("G" + (customerRow + 1)).getValue() + "€" 
+    let discountPercentage = customerSheet.getRange("H" + (customerRow + 1)).getValue() * 100 + "%" 
+    let adsPublished = customerSheet.getRange("R" + (customerRow + 1)).getValue() + 
       " en moyenne sur les 6 derniers mois";
-    let customerPrice = customerSheet.getRange("AC" + (row + 1)).getValue().toFixed()
-
-    let averagePriceComparison = customerPrice + "€ vs " + priceInDepartment +
+    let customerPrice = customerSheet.getRange("AC" + (customerRow + 1)).getValue().toFixed() 
+    
+    let averagePriceComparison = customerPrice + "€ vs " + priceInDepartment + 
       "€ en moyenne dans votre département";
 
     let percentageDeviation =  calculatePriceDeviation(customerPrice, priceInDepartment).toFixed() + "%";
 
     let similarCustomerLeadsPerAd = getSimilarLeadsPerSales(departmentCode, countySheet).toFixed(1);
-    let leadsPerAd = customerSheet.getRange("AE" + (row + 1)).getValue() + " vs " +
+    let leadsPerAd = customerSheet.getRange("AE" + (customerRow + 1)).getValue() + " vs " +
       similarCustomerLeadsPerAd + " en moyenne dans votre département";
-    let cplBuyers = customerSheet.getRange("M" + (row + 1)).getValue().toFixed() + "€ Vs " +
-      customerSheet.getRange("N" + (row + 1)).getValue().toFixed() + "€ clients similaires";
+    let cplBuyers = customerSheet.getRange("M" + (customerRow + 1)).getValue().toFixed() + "€ Vs " + 
+      customerSheet.getRange("N" + (customerRow + 1)).getValue().toFixed() + "€ clients similaires";
 
     table.getCell(0, 1).getText().setText(mainPackage);
     table.getCell(1, 1).getText().setText(subscriptionPrice);
@@ -137,17 +172,16 @@ function updateSlide23(countySheet, customerSheet, slides) {
     table.getCell(5, 1).getText().setText(percentageDeviation);
     table.getCell(6, 1).getText().setText(leadsPerAd);
     table.getCell(7, 1).getText().setText(cplBuyers);
-  }
 
-  Logger.log("Slide 23 Update Complete");
+    Logger.log("Slide 23 Update Complete");
 }
 
-function updateSlide24(countySheet, slides) {
+function updateSlide24(departmentCode, countySheet, slides) {
   Logger.log("Updating Slide 24");
   let slide = slides.getSlides()[23];
   let elements = slide.getPageElements();
 
-  let packData = extractPackData(countySheet);
+  let packData = extractPackData(departmentCode, countySheet);
   let totalPacks = packData["Total agences"];
 
   elements.forEach((element, index) => {
@@ -204,61 +238,59 @@ function updateSlide24(countySheet, slides) {
   Logger.log("Slide 24 Update Complete");
 }
 
-function updateSlide25(customerMonthlySheet, slides){
+function updateSlide25(customerId, customerMonthlySheet, slides){
   Logger.log("Updating Slide 25");
   let slide = slides.getSlides()[24];
 
-  let creditData = extractCreditData(customerMonthlySheet);
+  let creditData = extractCreditData(customerId, customerMonthlySheet);
+  if (creditData.length === 0) {
+    Logger.log(`No credit data found for Customer: ${customerId}`);
+    return;
+  }
 
-  let groupedData = {};
-  creditData.forEach(entry => {
-    if (!groupedData[entry.customerId]) {
-      groupedData[entry.customerId] = [];
-    }
-    groupedData[entry.customerId].push(entry);
-  });
-
-    let tables = slide.getTables();
-    if (tables.length === 0) {
-        return;
-    }
+  let tables = slide.getTables();
+  if (tables.length === 0) {
+      return;
+  }
 
   let table = tables[0];
   let headers = ["Décembre 2024", "Novembre 2024", "Octobre 2024", "Septembre 2024"];
 
-  for (let customerId in groupedData) {
-    let customerData = groupedData[customerId];
+  let dataMap = {};
+  creditData.forEach(entry => {
+      dataMap[entry.monthYear] = entry;
+  });
 
-    let dataMap = {};
-    customerData.forEach(entry => {
-        dataMap[entry.monthYear] = entry;
-    });
+  let totalUnusedPortion = 0;
+  let count = 0;
 
-    let totalUnusedPortion = 0;
-    let count = 0;
+  for (let column = 1; column <= headers.length; column++) {
+    let monthHeader = headers[column - 1];  // Example: "Décembre 2024"
+    let monthYearKey = convertHeaderToMonthYear(monthHeader);  // Converts it to "2024-12"
 
-    for (let col = 1; col <= headers.length; col++) {
-      let monthHeader = headers[col - 1];  // Get month name
-      let monthYearKey = convertHeaderToMonthYear(monthHeader);
-
-      let entry = dataMap[monthYearKey];
-      if (!entry) {
-          continue;
-      }
-
-      // Update table cells
-      table.getCell(1, col).getText().setText(entry.unusedPortion);
-      table.getCell(2, col).getText().setText(entry.unusedCredit);
-      table.getCell(3, col).getText().setText(entry.usedCredit);
-      table.getCell(4, col).getText().setText(entry.totalCredit);
-
-       // Accumulate unused portion percentage
-      let unusedPercentage = parseFloat(entry.unusedPortion.replace("%", ""));
-      if (!isNaN(unusedPercentage)) {
-        totalUnusedPortion += unusedPercentage;
-        count++;
-      }
+    let entry = dataMap[monthYearKey];
+    if (!entry) {
+      Logger.log(`No data for ${monthYearKey}`);
+      continue;
     }
+
+    let unusedPortion = entry.unusedPortion || "0%";
+    let unusedCredit = entry.unusedCredit ?? "0";  
+    let usedCredit = entry.usedCredit ?? "0";
+    let totalCredit = entry.totalCredit ?? "0";
+
+    table.getCell(1, column).getText().setText(unusedPortion);
+    table.getCell(2, column).getText().setText(unusedCredit);
+    table.getCell(3, column).getText().setText(usedCredit);
+    table.getCell(4, column).getText().setText(totalCredit);
+
+    let unusedPercentage = parseFloat(entry.unusedPortion.replace("%", ""));
+    if (!isNaN(unusedPercentage)) {
+      totalUnusedPortion += unusedPercentage;
+      count++;
+    }
+  }
+
   let averageUnused = count > 0 ? (totalUnusedPortion / count).toFixed(0) + "%" : "XX%";
   let shapes = slide.getShapes();
     for (let shape of shapes) {
@@ -269,19 +301,20 @@ function updateSlide25(customerMonthlySheet, slides){
         break;
       }
     }
-  }
-  Logger.log("Slide 23 Update Complete");
+  Logger.log("Slide 25 Update Complete");
 }
 
-function updateSlide26(googleSlideMappingSheet, customerMonthlySheet, slides) {
+function updateSlide26(customerId, googleSlideMappingSheet, customerMonthlySheet, slides) {
   Logger.log("Investigating Slide 26");
   let slide = slides.getSlides()[25];
 
   let lastRow = customerMonthlySheet.getLastRow();
-  let customerData = {}; // grouped data for each customer
+  let customerData = []; // grouped data for each customer
 
   for (let row = 2; row <= lastRow; row++) {
-    let customerId = customerMonthlySheet.getRange(`B${row}`).getValue();
+    let currentCustomerId = customerMonthlySheet.getRange(`B${row}`).getValue();
+    if (currentCustomerId !== customerId) continue;
+
     let monthYear = customerMonthlySheet.getRange(`A${row}`).getValue();  // Full Date
 
     let displays = customerMonthlySheet.getRange(`BP${row}`).getValue();
@@ -291,11 +324,7 @@ function updateSlide26(googleSlideMappingSheet, customerMonthlySheet, slides) {
     let phoneContacts = customerMonthlySheet.getRange(`AJ${row}`).getValue();
     let attractiveness = (displays !== 0) ? ((detailDisplays / displays) * 100).toFixed() + "%" : "0%";
 
-    // Group data by customerId
-    if (!customerData[customerId]) {
-      customerData[customerId] = [];
-    }
-    customerData[customerId].push({
+    customerData.push({
       monthYear,
       displays,
       detailDisplays,
@@ -306,61 +335,58 @@ function updateSlide26(googleSlideMappingSheet, customerMonthlySheet, slides) {
     });
   }
 
-  // Process each customer's data separately
-  Object.keys(customerData).forEach(customerId => {
-    let chartData = extractChartDataForCustomer(customerData[customerId]);
-
-    updateSlide26Chart(googleSlideMappingSheet, slide, chartData, customerId);
-    let lastEntry = customerData[customerId][customerData[customerId].length - 1];
-
-    updateSlide26Data(slide, lastEntry.displays, lastEntry.attractiveness, lastEntry.detailDisplays, lastEntry.alertsSent, lastEntry.emailsSent, lastEntry.phoneContacts);
-  });
-  Logger.log("Slide 26 Update Complete");
-
-}
-
-function extractPackData(countySheet) {
-  let lastRow = countySheet.getLastRow();
-  let packData = {
-    "Ultimo Essentiel": 0,
-    "Ultimmo Expert": 0,
-    "Ultimmo Absolu": 0,
-    "Duo access": 0,
-    "Duo power": 0,
-    "Duo success": 0,
-    "RDVQ": 0,
-    "Encart pub": 0,
-    "Pack Pro": 0,
-    "CDP": 0,
-    "Boost Extend +": 0
-  };
-
-  for (let row = 2; row <= lastRow; row++) {
-    let essentiel = countySheet.getRange(`AG${row}`).getValue();
-    let expert = countySheet.getRange(`AH${row}`).getValue();
-    let absolu = countySheet.getRange(`AI${row}`).getValue();
-    let duoAccess = countySheet.getRange(`AD${row}`).getValue();
-    let duoPower = countySheet.getRange(`AE${row}`).getValue();
-    let duoSuccess = countySheet.getRange(`AF${row}`).getValue();
-    let rdvq = countySheet.getRange(`AL${row}`).getValue();
-    let encartPub = countySheet.getRange(`AN${row}`).getValue();
-    let packPro = countySheet.getRange(`AJ${row}`).getValue();
-    let cdp = countySheet.getRange(`AK${row}`).getValue();
-    let boostExtend = countySheet.getRange(`AM${row}`).getValue();
-
-    packData["Ultimo Essentiel"] = essentiel;
-    packData["Ultimmo Expert"] = expert;
-    packData["Ultimmo Absolu"] = absolu;
-    packData["Duo access"] = duoAccess;
-    packData["Duo power"] = duoPower;
-    packData["Duo success"] = duoSuccess;
-    packData["RDVQ"] = rdvq;
-    packData["Encart pub"] = encartPub;
-    packData["Pack Pro"] = packPro;
-    packData["CDP"] = cdp;
-    packData["Boost Extend +"] = boostExtend;
+  if (customerData.length === 0) {
+    Logger.log(`⚠️ No data found for Customer: ${customerId}`);
+    return;
   }
 
+  let chartData = extractChartDataForCustomer(customerData);  
+  updateSlide26Chart(googleSlideMappingSheet, slide, chartData, customerId);
+
+  let lastEntry = customerData[customerData.length - 1];
+  
+  Logger.log("Last entry :: " + JSON.stringify(lastEntry, null, 2));
+
+  updateSlide26Data(
+    slide, 
+    lastEntry.displays, 
+    lastEntry.attractiveness, 
+    lastEntry.detailDisplays, 
+    lastEntry.alertsSent, 
+    lastEntry.emailsSent, 
+    lastEntry.phoneContacts
+    );
+
+  Logger.log("Slide 26 Update Complete");
+}
+
+function createNewCustomerSlide(slidesTemplate, customerId, departmentName) {
+  let newFileName = `Presentation_${customerId}_${departmentName}_${new Date().toISOString()}`;
+  let newSlideFile = slidesTemplate.makeCopy(newFileName, DriveApp.getFolderById(FOLDER_ID));
+  let slides = SlidesApp.openById(newSlideFile.getId());
+  Logger.log(`📌 Created new presentation: ${newFileName}`);
+  return slides
+}
+
+function extractPackData(departmentCode, countySheet) {
+  let departmentRow = extractDepartmentRow(departmentCode, countySheet);
+  if (!departmentRow) return null; // Exit if department is not found
+
+  let packData = {
+    "Ultimo Essentiel": countySheet.getRange(`AG${departmentRow}`).getValue(),
+    "Ultimmo Expert": countySheet.getRange(`AH${departmentRow}`).getValue(),
+    "Ultimmo Absolu": countySheet.getRange(`AI${departmentRow}`).getValue(),
+    "Duo access": countySheet.getRange(`AD${departmentRow}`).getValue(),
+    "Duo power": countySheet.getRange(`AE${departmentRow}`).getValue(),
+    "Duo success": countySheet.getRange(`AF${departmentRow}`).getValue(),
+    "RDVQ": countySheet.getRange(`AL${departmentRow}`).getValue(),
+    "Encart pub": countySheet.getRange(`AN${departmentRow}`).getValue(),
+    "Pack Pro": countySheet.getRange(`AJ${departmentRow}`).getValue(),
+    "CDP": countySheet.getRange(`AK${departmentRow}`).getValue(),
+    "Boost Extend +": countySheet.getRange(`AM${departmentRow}`).getValue()
+  };
+
+  // Calculate totals
   packData["Total Ultimmo"] = packData["Ultimo Essentiel"] + packData["Ultimmo Expert"] + packData["Ultimmo Absolu"];
   packData["Total Duo"] = packData["Duo access"] + packData["Duo power"] + packData["Duo success"];
   packData["Total agences"] = packData["Total Ultimmo"] + packData["Total Duo"];
@@ -371,14 +397,12 @@ function extractPackData(countySheet) {
 }
 
 function getPriceOfGoodInDepartment(departmentCode, countySheet) {
-  let countyDepartments = countySheet.getRange("A:A").getValues().flat(); // Get all departments
-  let countyRowIndex = countyDepartments.indexOf(departmentCode);
-
-  if (countyRowIndex === -1) {
-      Logger.log("❌ Department " + departmentCode + " not found in county sheet.");
-      return null;
+  let row = extractDepartmentRow(departmentCode, countySheet);
+  if (!row) {
+    Logger.log(`❌ Department ${departmentCode} not found in county sheet.`);
+    return null;
   }
-  return countySheet.getRange("AB" + (countyRowIndex + 1)).getValue();
+  return countySheet.getRange(`AB${row}`).getValue();
 
 }
 
@@ -388,34 +412,33 @@ function getSimilarLeadsPerSales(departmentCode, countySheet) {
 
   if (countyRowIndex === -1) {
       Logger.log("❌ Department " + departmentCode + " not found in county sheet.");
-      return null;
+      return null; 
   }
   return countySheet.getRange("W" + (countyRowIndex + 1)).getValue();
 }
 
-
+  
 function calculatePriceDeviation(customerPrice, priceInDepartment) {
   if (priceInDepartment === 0 || priceInDepartment === null) {
       Logger.log("❌ Error: Division by zero or missing department price.");
       return "N/A";
   }
   let deviation = ((customerPrice - priceInDepartment) / priceInDepartment) * 100;
-  return deviation;
+  return deviation; 
 }
 
-function extractCreditData(customerMonthlySheet) {
+function extractCreditData(customerId, customerMonthlySheet) {
   Logger.log("Extracting Credit Data");
 
-  let lastRow = customerMonthlySheet.getLastRow();
-
+  let dataRange = customerMonthlySheet.getDataRange().getValues();
+  let headers = dataRange[0]; 
   let creditData = [];
 
-  // Looping through all the rows
-  for (let row = 2; row <= lastRow; row++) {
-    let customerId = customerMonthlySheet.getRange(`B${row}`).getValue(); // Column B
-    let dateValue = customerMonthlySheet.getRange(`A${row}`).getValue(); // Column A (Full Date)
+  for (let i = 1; i < dataRange.length; i++) { 
+    if (dataRange[i][1] !== customerId) continue; // Column B :: Customer ID
 
-    let year = dateValue.getFullYear(); // Extract Year
+    let dateValue = dataRange[i][0]; // Column A :: Full Date
+    let year = dateValue.getFullYear();
     let month = dateValue.getMonth() + 1;
 
     // Filter required months
@@ -423,20 +446,21 @@ function extractCreditData(customerMonthlySheet) {
       continue;
     }
 
-    let unusedPortion = customerMonthlySheet.getRange(`BL${row}`).getValue() * 100;
-    let unusedCredit = customerMonthlySheet.getRange(`BM${row}`).getValue();
-    let usedCredit = customerMonthlySheet.getRange(`BO${row}`).getValue();
-    let totalCredit = customerMonthlySheet.getRange(`BN${row}`).getValue();
+    let unusedPortion = dataRange[i][headers.indexOf("BL")] * 100;
+    let unusedCredit = dataRange[i][headers.indexOf("BM")];
+    let usedCredit = dataRange[i][headers.indexOf("BO")];
+    let totalCredit = dataRange[i][headers.indexOf("BN")];
 
     creditData.push({
-        customerId: customerId,
-        monthYear: `${year}-${month.toString().padStart(2, '0')}`,
-        unusedPortion: unusedPortion.toFixed() + "%",
-        unusedCredit: unusedCredit,
-        usedCredit: usedCredit,
-        totalCredit: totalCredit
-      });
+      customerId: customerId,
+      monthYear: `${year}-${month.toString().padStart(2, '0')}`,
+      unusedPortion: unusedPortion.toFixed() + "%",
+      unusedCredit: unusedCredit,
+      usedCredit: usedCredit,
+      totalCredit: totalCredit
+    });
   }
+  Logger.log("Successfully extracted Credit Data");
   return creditData;
 }
 
@@ -569,12 +593,18 @@ function extractChartData(customerMonthlySheet) {
 }
 
 function extractChartDataForCustomer(customerEntries) {
+  if (!Array.isArray(customerEntries)) {
+    Logger.log("⚠️ extractChartDataForCustomer received an invalid input: " + JSON.stringify(customerEntries));
+    return []; // Return an empty array instead of causing an error
+  }
+
   return customerEntries.map(entry => ({
     monthYear: entry.monthYear,
-    emailsSent: entry.emailsSent,
-    phoneContacts: entry.phoneContacts
+    emailsSent: entry.emailsSent ?? 0,  // Ensure emailsSent is never null/undefined
+    phoneContacts: entry.phoneContacts ?? 0 // Ensure phoneContacts is never null/undefined
   }));
 }
+
 
 function updateSlide26Chart(googleSlideMappingSheet, slide, chartData, customerId) {
 
@@ -598,14 +628,14 @@ function updateSlide26Chart(googleSlideMappingSheet, slide, chartData, customerI
 
   for (var i = 2; i < existingData.length; i++) {
     let monthYear = existingData[i][1]; // Column B (L12M data)
-
+    
     if (chartDataMap[monthYear]) {
         existingData[i][2] = chartDataMap[monthYear].emailsSent; // Update Column C
         existingData[i][3] = chartDataMap[monthYear].phoneContacts; // Update Column D
     }
   }
   range.setValues(existingData);
-
+    
   Logger.log("Data updated successfully! Now extracting chart...");
 
   let charts = googleSlideMappingSheet.getCharts();
@@ -626,6 +656,36 @@ function updateSlide26Chart(googleSlideMappingSheet, slide, chartData, customerI
   images[0].replace(chartImage);
   Logger.log("Chart image replaced successfully.");
 }
+
+function extractDepartmentRow(departmentCode, countySheet) {
+  let textFinder = countySheet.getRange("A:A").createTextFinder(departmentCode).findNext();
+  if (!textFinder) {
+    Logger.log(`❌ Department code ${departmentCode} not found.`);
+    return;
+  }
+
+  return  textFinder.getRow();
+}
+
+function extractCustomerRow(customerId, customerSheet) {
+  let textFinder = customerSheet.getRange("B:B").createTextFinder(customerId).findNext();
+  if (!textFinder) {
+    Logger.log(`❌ Customer ID ${customerId} not found.`);
+    return null;
+  }
+  return textFinder.getRow();
+}
+
+function clearExistingTriggers() {
+  let triggers = ScriptApp.getProjectTriggers();
+  triggers.forEach(trigger => {
+    if (trigger.getHandlerFunction() === "generatePresentationData") {
+      ScriptApp.deleteTrigger(trigger);
+    }
+  });
+}
+
+
 
 
 
